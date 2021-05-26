@@ -26,7 +26,9 @@ LIBXC_CUDA_FLAGS = -I$(libxcfolder)
 
 CXXOBJ=$(objfolder)/xc_redistribute.o
 
-CUDACOBJ=$(objfolder)/gpu.o $(objfolder)/gpu_type.o $(objfolder)/gpu_get2e.o 
+CUDACOBJ=$(objfolder)/gpu.o $(objfolder)/gpu_type.o
+
+CUDAERIOBJ=$(objfolder)/gpu_get2e.o $(objfolder)/gpu_get2e_sp.o
 
 CUDAXCOBJ=$(objfolder)/gpu_getxc.o
 
@@ -41,6 +43,10 @@ $(CUDACOBJ):$(objfolder)/%.o:%.cu
 	$(VB)$(CUDAC) $(CUDA_FLAGS) $(CUDA_INCL_FLAGS) $(LIBXC_CUDA_FLAGS) -c $< -o $@
 
 $(CUDAXCOBJ):$(objfolder)/%.o:%.cu
+	@echo "[QUICK]  NVCC $@"
+	$(VB)$(CUDAC) $(CUDA_FLAGS) $(CUDA_DC_FLAGS) -dc $(CUDA_INCL_FLAGS) $(LIBXC_CUDA_FLAGS) -c $< -o $@
+
+$(CUDAERIOBJ):$(objfolder)/%.o:%.cu
 	@echo "[QUICK]  NVCC $@"
 	$(VB)$(CUDAC) $(CUDA_FLAGS) $(CUDA_DC_FLAGS) -dc $(CUDA_INCL_FLAGS) $(LIBXC_CUDA_FLAGS) -c $< -o $@
 
@@ -102,10 +108,15 @@ endif
 #  ! Build targets                                                       !
 #  !---------------------------------------------------------------------!
 
-allbutxc: $(CXXOBJ) $(CUDACOBJ) $(CUDAFOBJ)
+allbuterixc: $(CXXOBJ) $(CUDACOBJ) $(CUDAFOBJ)
 
 xc: $(CUDAXCOBJ)
 	$(VB)$(CUDAC) $(CUDA_FLAGS) $(CUDA_DC_FLAGS) $(CUDA_INCL_FLAGS) $(LIBXC_CUDA_FLAGS) -dlink $(objfolder)/gpu_getxc.o $(LIBXC_DEV_OBJ) -o $(objfolder)/gpu_xcall.o
+
+eri: $(CUDAERIOBJ)
+	$(VB)$(CUDAC) $(CUDA_FLAGS) $(CUDA_DC_FLAGS) $(CUDA_INCL_FLAGS) $(LIBXC_CUDA_FLAGS) -E gpu_get2e.cu -o gpu_get2e_ppd.cu
+	$(VB)$(CUDAC) $(CUDA_FLAGS) $(CUDA_DC_FLAGS) $(CUDA_INCL_FLAGS) $(LIBXC_CUDA_FLAGS) -E gpu_get2e_sp.cu -o gpu_get2e_sp_ppd.cu 
+	$(VB)$(CUDAC) $(CUDA_FLAGS) $(CUDA_DC_FLAGS) $(CUDA_INCL_FLAGS)  -dlink $(CUDAERIOBJ) -o $(objfolder)/gpu_eriall.o
 
 #  !---------------------------------------------------------------------!
 #  ! Cleaning targets                                                    !
