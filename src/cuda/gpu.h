@@ -153,6 +153,30 @@ __device__ void iclass_oshell_spdf8(int I, int J, int K, int L, unsigned int II,
 __device__ void iclass_oshell_spdf9(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
 __device__ void iclass_oshell_spdf10(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
 
+__device__ void iclass(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf2(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf3(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf4(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf5(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf6(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf7(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf8(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf9(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_spdf10(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+
+__device__ void iclass_oshell(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf2(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf3(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf4(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf5(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf6(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf7(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf8(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf9(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+__device__ void iclass_oshell_spdf10(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, float DNMax, gpu_simulation_type *devSim);
+
 __device__ __forceinline__ void iclass_AOInt(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, ERI_entry* aoint_buffer, int streamID);
 __device__ __forceinline__ void iclass_AOInt_spdf(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, ERI_entry* aoint_buffer, int streamID);
 __device__ __forceinline__ void iclass_AOInt_spdf2(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, ERI_entry* aoint_buffer, int streamID);
