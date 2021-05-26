@@ -7,6 +7,8 @@
 //
 #include "gpu_common.h"
 
+#define MIXED_PRECISION
+
 #undef STOREDIM
 
 #ifdef int_spd
@@ -73,6 +75,7 @@ To understand the following comments better, please refer to Figure 2(b) and 2(d
  finally,  kernel 4: zone 4(get2e_kernel_spdf4())
 
  */
+
 #ifdef OSHELL
 #ifdef int_spd
 __global__ void
@@ -422,141 +425,285 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                 int kkk = devSim.sorted_Qnumber[KK];
                 int lll = devSim.sorted_Qnumber[LL];
 
+#ifdef MIXED_PRECISION
+                QUICKDouble floatCutoff=0.1e-8; // integral cutoff below which float code paths will be used 
+                QUICKDouble floatIntegralCutoff=0.1e-9; // we shall not use float code paths during final SCF iterations for the sake of convergence.
+
+                if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) < floatCutoff && \
+                    (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) < floatCutoff && \
+                    devSim.integralCutoff > floatIntegralCutoff ) {
                 
-      
+// code paths for single precision
+#ifdef OSHELL
+#ifdef int_spd
+                    iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+
+#elif defined int_spdf
+                    if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
+                      iclass_oshell_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+
+#elif defined int_spdf2
+                    if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
+                      iclass_oshell_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf3
+
+
+                    if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
+                      iclass_oshell_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf4
+
+
+                    if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
+                      iclass_oshell_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf5
+
+                    if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
+                      iclass_oshell_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+#elif defined int_spdf6
+                    if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
+                      iclass_oshell_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+#elif defined int_spdf7
+
+
+                    if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
+                      iclass_oshell_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf8
+
+
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_oshell_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+#elif defined int_spdf9
+
+
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_oshell_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+#elif defined int_spdf10
+
+
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_oshell_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+#endif
+#else
+#ifdef int_spd
+                    iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+
+#elif defined int_spdf
+                    if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
+                      iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+
+#elif defined int_spdf2
+                    if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
+                      iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf3
+
+
+                    if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
+                      iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf4
+
+
+                    if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
+                      iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf5
+
+                    if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
+                      iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+
+#elif defined int_spdf6
+                    if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
+                      iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf7
+                    if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
+                      iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+
+#elif defined int_spdf8
+
+
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+#elif defined int_spdf9
+
+
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+#elif defined int_spdf10
+
+
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    }
+#endif
+#endif
+                }else{
+#endif
+
+// code paths double precision
 #ifdef OSHELL
 #ifdef int_spd
                     iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
 
 #elif defined int_spdf
-                if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
-                    iclass_oshell_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
+                      iclass_oshell_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 
 
 #elif defined int_spdf2
-                if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
-                    iclass_oshell_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
+                      iclass_oshell_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 
 #elif defined int_spdf3
 
 
-                if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                    iclass_oshell_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
+                      iclass_oshell_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 
 #elif defined int_spdf4
 
 
-                if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                    iclass_oshell_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
+                      iclass_oshell_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 
 #elif defined int_spdf5
 
-                if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
-                    iclass_oshell_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
+                      iclass_oshell_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 #elif defined int_spdf6
-                if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
-                    iclass_oshell_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
+                      iclass_oshell_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 #elif defined int_spdf7
 
 
-                if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
-                    iclass_oshell_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
+                      iclass_oshell_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 
 #elif defined int_spdf8
 
 
-                if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_oshell_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_oshell_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 #elif defined int_spdf9
 
 
-                if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_oshell_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_oshell_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 #elif defined int_spdf10
 
 
-                if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_oshell_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_oshell_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 #endif
 #else          
 #ifdef int_spd
                     iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
                 
 #elif defined int_spdf
-                if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
-                    iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
+                      iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
                 
                 
 #elif defined int_spdf2
-                if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
-                    iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
+                      iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
                 
 #elif defined int_spdf3
                 
                 
-                if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                    iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
+                      iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
                 
 #elif defined int_spdf4
                 
                 
-                if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                    iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
+                      iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
                 
 #elif defined int_spdf5
                 
-                if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
-                    iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
+                      iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
                 
                 
 #elif defined int_spdf6
-                if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
-                    iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
+                      iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
                 
 #elif defined int_spdf7
                 
                 
-                if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
-                    iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
+                      iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
                 
 #elif defined int_spdf8
                 
                 
-                if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 #elif defined int_spdf9
                 
                 
-                if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 #elif defined int_spdf10
                 
                 
-                if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
+                    if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
+                      iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    }
 #endif
 #endif
-                
+
+#ifdef MIXED_PRECISION
+                }          
+#endif
             }
         }
 
@@ -565,6 +712,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #endif        
     }
 }
+
 
 /*
  iclass subroutine is to generate 2-electron intergral using HRR and VRR method, which is the most
@@ -1616,7 +1764,7 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
             QUICKULL val6a = (QUICKULL) (fabs(val6da*OSCALE) + (QUICKDouble)0.5);
             if ( val6da < (QUICKDouble)0.0) val6a = 0ull - val6a;
 
-            QUICKADD(LOC2(oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, devSim.nbasis, devSim.nbasis), 0ull-val6a);
+            QUICKADD(LOC2(oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6a);
 
             // ATOMIC ADD VALUE 6 - 2
             if (JJJ == LLL && III!= KKK) {
@@ -1631,7 +1779,7 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
             QUICKULL val6b = (QUICKULL) (fabs(val6db*OSCALE) + (QUICKDouble)0.5);
             if ( val6db < (QUICKDouble)0.0) val6b = 0ull - val6b;
 
-            QUICKADD(LOC2(obULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, devSim.nbasis, devSim.nbasis), 0ull-val6b);
+            QUICKADD(LOC2(obULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6b);
 
             // ATOMIC ADD VALUE 6 - 2
             if (JJJ == LLL && III!= KKK) {
@@ -1720,7 +1868,7 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
             QUICKULL val6 = (QUICKULL) (fabs(val6d*OSCALE) + (QUICKDouble)0.5);
             if ( val6d < (QUICKDouble)0.0) val6 = 0ull - val6;
             
-            QUICKADD(LOC2(oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, devSim.nbasis, devSim.nbasis), 0ull-val6);
+            QUICKADD(LOC2(oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6);
             
             // ATOMIC ADD VALUE 6 - 2
             if (JJJ == LLL && III!= KKK) {
