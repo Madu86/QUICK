@@ -652,7 +652,7 @@ contains
            tmp = quick_method%integralCutoff
            call adjust_cutoff(PRMS,PCHANGE,quick_method,ierr)  !from quick_method_module
 
-#if defined(CUDA) || defined(CUDA_MPIV) && defined(MIXED_PRECISION)
+#if (defined(CUDA) || defined(CUDA_MPIV)) && defined(MIXED_PRECISION)
            quick_method%mpIntegralCutoff = (errormax * 0.5d0 * 10**6)**(1.0d0/0.7d0) * TEN_TO_MINUS6 
            write(*,*) "max diis error", quick_method%mpIntegralCutoff
 #endif
