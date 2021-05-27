@@ -7,8 +7,6 @@
 //
 #include "gpu_common.h"
 
-#define MIXED_PRECISION
-
 #undef STOREDIM
 
 #ifdef int_spd
@@ -17,6 +15,7 @@
 #define STOREDIM STOREDIM_L
 #endif
 
+#ifndef SINGLE_PRECISION // start of double precision only code paths
 
 /*
 To understand the following comments better, please refer to Figure 2(b) and 2(d) in Miao and Merz 2015 paper. 
@@ -426,145 +425,152 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                 int lll = devSim.sorted_Qnumber[LL];
 
 #ifdef MIXED_PRECISION
-                QUICKDouble floatCutoff=0.1e-8; // integral cutoff below which float code paths will be used 
+                QUICKDouble floatCutoff=1.0e-6; // integral cutoff below which float code paths will be used 
                 QUICKDouble floatIntegralCutoff=0.1e-9; // we shall not use float code paths during final SCF iterations for the sake of convergence.
 
                 if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) < floatCutoff && \
                     (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) < floatCutoff && \
                     devSim.integralCutoff > floatIntegralCutoff ) {
+
+#undef QUICKDouble
+#define QUICKDouble float
                 
-// code paths for single precision
+// code paths for single precision, QUICKDouble will replaced by float during preprocessing
 #ifdef OSHELL
 #ifdef int_spd
-                    iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 
 #elif defined int_spdf
                     if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
-                      iclass_oshell_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 
 #elif defined int_spdf2
                     if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
-                      iclass_oshell_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf3
 
 
                     if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                      iclass_oshell_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf4
 
 
                     if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                      iclass_oshell_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf5
 
                     if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
-                      iclass_oshell_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 #elif defined int_spdf6
                     if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
-                      iclass_oshell_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 #elif defined int_spdf7
 
 
                     if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
-                      iclass_oshell_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf8
 
 
                     if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                      iclass_oshell_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 #elif defined int_spdf9
 
 
                     if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                      iclass_oshell_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 #elif defined int_spdf10
 
 
                     if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                      iclass_oshell_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_oshell_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 #endif
 #else
 #ifdef int_spd
-                    iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                    iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 
 #elif defined int_spdf
                     if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
-                      iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 
 #elif defined int_spdf2
                     if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
-                      iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf3
 
 
                     if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                      iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf4
 
 
                     if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                      iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf5
 
                     if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
-                      iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 
 #elif defined int_spdf6
                     if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
-                      iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf7
                     if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
-                      iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 
 #elif defined int_spdf8
 
 
                     if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                      iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 #elif defined int_spdf9
 
 
                     if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                      iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 #elif defined int_spdf10
 
 
                     if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                      iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, (float) DNMax, &devSim);
+                      iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
                     }
 #endif
 #endif
                 }else{
+
+#undef QUICKDouble
+#define QUICKDouble double
+
 #endif
 
 // code paths double precision
@@ -713,6 +719,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
     }
 }
 
+#endif // end of double precision only code paths
 
 /*
  iclass subroutine is to generate 2-electron intergral using HRR and VRR method, which is the most
@@ -1190,6 +1197,7 @@ __device__ __forceinline__ void iclass_spdf10
 }
 
 
+#ifndef SINGLE_PRECISION // start of double precision only code paths
 
 #ifndef OSHELL
 #ifdef int_spd
@@ -1636,7 +1644,7 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
 }
 #endif
 
-
+#endif // end of double precision only code paths
 
 
 #ifndef new_quick_2_gpu_get2e_subs_h
