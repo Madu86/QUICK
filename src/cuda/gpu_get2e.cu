@@ -29,7 +29,6 @@ static __constant__ gpu_simulation_type devSim;
 static __constant__ int devTrans[TRANSDIM*TRANSDIM*TRANSDIM];
 static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 
-#define MIXED_PRECISION
 
 /* include single precision code paths, MIXED_PRECISION flag is a general flag to specify whether to compile
  a single precision version. SINGLE_PRECISION flag allows compiling flat specific code paths from header files.*/  
@@ -39,7 +38,6 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef QUICKDouble
 #define QUICKDouble float
 
-#include "gpu_get2e_sp.h"
 #include "gpu_get2e_subs_hrr.h"
 #include "int.h"
 
