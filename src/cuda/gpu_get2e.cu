@@ -29,7 +29,444 @@ static __constant__ gpu_simulation_type devSim;
 static __constant__ int devTrans[TRANSDIM*TRANSDIM*TRANSDIM];
 static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 
+#define MIXED_PRECISION
 
+/* include single precision code paths, MIXED_PRECISION flag is a general flag to specify whether to compile
+ a single precision version. SINGLE_PRECISION flag allows compiling flat specific code paths from header files.*/  
+
+#ifdef MIXED_PRECISION // start to include single precision code paths
+#define SINGLE_PRECISION
+#undef QUICKDouble
+#define QUICKDouble float
+
+#include "gpu_get2e_sp.h"
+#include "gpu_get2e_subs_hrr.h"
+#include "int.h"
+
+
+#define int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+/*#include "gpu_get2e_subs_grad.h"
+
+
+//===================================
+
+#undef int_spd
+#define int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs_grad.h"
+
+#undef int_spd
+#undef int_spdf
+#define int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs_grad.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#define int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs_grad.h"
+*/
+#ifdef CUDA_SPDF
+//===================================
+
+#undef int_spd
+#define int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#define int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#define int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#define int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#define int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#define int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#define int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#define int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#define int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#define int_spdf10
+#include "gpu_get2e_subs.h"
+#endif
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+
+//Include the kernels for open shell eri calculations
+#define OSHELL
+#define int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#undef new_quick_2_gpu_get2e_subs_h
+#include "gpu_get2e_subs.h"
+/*#include "gpu_get2e_subs_grad.h"
+
+//===================================
+
+#undef int_spd
+#define int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs_grad.h"
+
+#undef int_spd
+#undef int_spdf
+#define int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs_grad.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#define int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs_grad.h"
+*/
+
+#ifdef CUDA_SPDF
+//===================================
+
+#undef int_spd
+#define int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#define int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#define int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#define int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#define int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#define int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#define int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#define int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#define int_spdf9
+#undef int_spdf10
+#include "gpu_get2e_subs.h"
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#define int_spdf10
+#include "gpu_get2e_subs.h"
+#endif
+
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#undef new_quick_2_gpu_get2e_subs_h
+
+#undef OSHELL
+
+#undef new_quick_2_gpu_get2e_subs_hrr_h
+#undef SINGLE_PRECISION
+#undef QUICKDouble
+#define QUICKDouble double
+
+#endif // end including single precision code paths
+
+// include double precision code paths
 #include "gpu_get2e_subs_hrr.h"
 #include "int.h"
 
