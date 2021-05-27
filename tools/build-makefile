@@ -22,9 +22,7 @@ include $(MAKEIN)
 #  ! Variable declarations                                               !
 #  !---------------------------------------------------------------------!
 
-cudaobj    =   $(objfolder)/gpu_write_info.o $(objfolder)/gpu.o
-
-cudaeriobj=$(objfolder)/gpu_get2e.o $(objfolder)/gpu_get2e_sp.o
+cudaobj    =   $(objfolder)/gpu_write_info.o $(objfolder)/gpu.o $(objfolder)/gpu_get2e.o
 
 cudaxcobj = $(objfolder)/gpu_getxc.o
 
@@ -147,7 +145,6 @@ octree:
 #============= targets for cuda =========================================
 quick_cuda:
 	@cd $(cudafolder) && make --no-print-directory allbuterixc
-	@cd $(cudafolder) && make --no-print-directory eri
 	@cd $(cudafolder) && make --no-print-directory xc
 
 #================= targets for BLAS =====================================
