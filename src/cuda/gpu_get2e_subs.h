@@ -425,12 +425,9 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                 int lll = devSim.sorted_Qnumber[LL];
 
 #ifdef MIXED_PRECISION
-                QUICKDouble floatCutoff=1.0e-6; // integral cutoff below which float code paths will be used 
-                QUICKDouble floatIntegralCutoff=0.1e-9; // we shall not use float code paths during final SCF iterations for the sake of convergence.
 
-                if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) < floatCutoff && \
-                    (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) < floatCutoff && \
-                    devSim.integralCutoff > floatIntegralCutoff ) {
+                if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) < devSim.mpIntegralCutoff && \
+                    (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) < devSim.mpIntegralCutoff) {
 
 #undef QUICKDouble
 #define QUICKDouble float
