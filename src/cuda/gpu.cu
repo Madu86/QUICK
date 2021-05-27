@@ -427,7 +427,8 @@ extern "C" void gpu_upload_atom_and_chg_(int* atom, QUICKDouble* atom_chg)
 //  upload cutoff criteria, will update every
 //  interation
 //-----------------------------------------------
-extern "C" void gpu_upload_cutoff_(QUICKDouble* cutMatrix, QUICKDouble* integralCutoff,QUICKDouble* primLimit, QUICKDouble* DMCutoff)
+extern "C" void gpu_upload_cutoff_(QUICKDouble* cutMatrix, QUICKDouble* integralCutoff,\
+                                   QUICKDouble* primLimit, QUICKDouble* DMCutoff, QUICKDouble* mpIntegralCutoff)
 {
     
 #ifdef DEBUG
@@ -442,6 +443,7 @@ extern "C" void gpu_upload_cutoff_(QUICKDouble* cutMatrix, QUICKDouble* integral
     gpu -> gpu_cutoff -> integralCutoff = *integralCutoff;
     gpu -> gpu_cutoff -> primLimit      = *primLimit;
     gpu -> gpu_cutoff -> DMCutoff       = *DMCutoff;
+    gpu -> gpu_cutoff -> mpIntegralCutoff = *mpIntegralCutoff;
     
     gpu -> gpu_cutoff -> cutMatrix  = new cuda_buffer_type<QUICKDouble>(cutMatrix, gpu->nshell, gpu->nshell);
     
@@ -453,6 +455,7 @@ extern "C" void gpu_upload_cutoff_(QUICKDouble* cutMatrix, QUICKDouble* integral
     gpu -> gpu_sim.integralCutoff   = gpu -> gpu_cutoff -> integralCutoff;
     gpu -> gpu_sim.primLimit        = gpu -> gpu_cutoff -> primLimit;
     gpu -> gpu_sim.DMCutoff         = gpu -> gpu_cutoff -> DMCutoff;
+    gpu -> gpu_sim.mpIntegralCutoff = gpu -> gpu_cutoff -> mpIntegralCutoff;
 
 #ifdef DEBUG
     cudaEventRecord(end, 0);
