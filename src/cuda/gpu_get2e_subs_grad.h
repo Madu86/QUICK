@@ -16,6 +16,8 @@
 #define STOREDIM STOREDIM_L
 #endif
 
+#ifndef SINGLE_PRECISION // start of double precision only code paths
+
 #ifdef OSHELL
 #ifdef int_spd
 __global__ void
@@ -149,56 +151,127 @@ __launch_bounds__(SM_2X_GRAD_THREADS_PER_BLOCK, 1) getGrad_kernel_spdf8()
                     int jjj = devSim.sorted_Qnumber[JJ];
                     int kkk = devSim.sorted_Qnumber[KK];
                     int lll = devSim.sorted_Qnumber[LL];
+
+#ifdef MIXED_PRECISION
+
+                    if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) < devSim.mpIntegralCutoff && \
+                        (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) < devSim.mpIntegralCutoff) {
+
+#undef QUICKDouble
+#define QUICKDouble float
+
+// code paths for single precision, QUICKDouble will replaced by float during preprocessing
+
 #ifdef OSHELL
 #ifdef int_spd
-                    iclass_oshell_grad(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_oshell_grad(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf
-                    if ( (kkk + lll) >= 4 ) {
-                        iclass_oshell_grad_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                    }
+                        if ( (kkk + lll) >= 4 ) {
+                            iclass_oshell_grad_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
+                        }
 #elif defined int_spdf2
-                    if ( (iii + jjj) >= 4 ) {
-                        iclass_oshell_grad_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                    }
+                        if ( (iii + jjj) >= 4 ) {
+                            iclass_oshell_grad_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
+                        }
 #elif defined int_spdf3
-                    iclass_oshell_grad_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_oshell_grad_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf4
-                    iclass_oshell_grad_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_oshell_grad_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf5
-                    iclass_oshell_grad_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_oshell_grad_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf6
-                    iclass_oshell_grad_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_oshell_grad_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf7
-                    iclass_oshell_grad_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_oshell_grad_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf8
-                    iclass_oshell_grad_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_oshell_grad_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #endif
 #else
 #ifdef int_spd
-                    iclass_grad(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_grad(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf
-                    if ( (kkk + lll) >= 4 ) {
-                        iclass_grad_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                    }
+                        if ( (kkk + lll) >= 4 ) {
+                            iclass_grad_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
+                        }
 #elif defined int_spdf2
-                    if ( (iii + jjj) >= 4 ) {
-                        iclass_grad_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                    }
+                        if ( (iii + jjj) >= 4 ) {
+                            iclass_grad_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
+                        }
 #elif defined int_spdf3
-                    iclass_grad_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_grad_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf4
-                    iclass_grad_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_grad_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf5
-                    iclass_grad_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_grad_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf6
-                    iclass_grad_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_grad_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf7
-                    iclass_grad_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_grad_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #elif defined int_spdf8
-                    iclass_grad_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        iclass_grad_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
 #endif
 #endif
-                    
+                    }else{
+
+#undef QUICKDouble
+#define QUICKDouble double
+
+#endif
+
+// code paths double precision
+#ifdef OSHELL
+#ifdef int_spd
+                        iclass_oshell_grad(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf
+                        if ( (kkk + lll) >= 4 ) {
+                            iclass_oshell_grad_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        }
+#elif defined int_spdf2
+                        if ( (iii + jjj) >= 4 ) {
+                            iclass_oshell_grad_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        }
+#elif defined int_spdf3
+                        iclass_oshell_grad_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf4
+                        iclass_oshell_grad_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf5
+                        iclass_oshell_grad_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf6
+                        iclass_oshell_grad_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf7
+                        iclass_oshell_grad_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf8
+                        iclass_oshell_grad_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#endif
+#else
+#ifdef int_spd
+                        iclass_grad(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf
+                        if ( (kkk + lll) >= 4 ) {
+                            iclass_grad_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        }
+#elif defined int_spdf2
+                        if ( (iii + jjj) >= 4 ) {
+                            iclass_grad_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                        }
+#elif defined int_spdf3
+                        iclass_grad_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf4
+                        iclass_grad_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf5
+                        iclass_grad_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf6
+                        iclass_grad_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf7
+                        iclass_grad_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#elif defined int_spdf8
+                        iclass_grad_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+#endif
+#endif
+
+#ifdef MIXED_PRECISION
+                    }
+#endif                    
                 }
             }
         }
@@ -209,6 +282,8 @@ __launch_bounds__(SM_2X_GRAD_THREADS_PER_BLOCK, 1) getGrad_kernel_spdf8()
 
     }
 }
+
+#endif // end of double precision only code paths
 
 
 /*
