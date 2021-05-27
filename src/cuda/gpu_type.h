@@ -64,6 +64,7 @@ struct gpu_cutoff_type {
     
     // Cutoff criteria
     QUICKDouble                     integralCutoff;
+    QUICKDouble                     mpIntegralCutoff;
     QUICKDouble                     primLimit;
     QUICKDouble                     DMCutoff;
     QUICKDouble                     gradCutoff;
@@ -300,6 +301,7 @@ struct gpu_simulation_type {
     QUICKDouble*                    YCutoff;
     QUICKDouble*                    cutPrim;
     QUICKDouble                     integralCutoff;
+    QUICKDouble                     mpIntegralCutoff;
     QUICKDouble                     primLimit;
     QUICKDouble                     DMCutoff;
     QUICKDouble                     gradCutoff;
