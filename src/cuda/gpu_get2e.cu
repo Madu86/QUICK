@@ -54,7 +54,7 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf9
 #undef int_spdf10
 #include "gpu_get2e_subs.h"
-/*#include "gpu_get2e_subs_grad.h"
+#include "gpu_get2e_subs_grad.h"
 
 
 //===================================
@@ -97,7 +97,7 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf9
 #undef int_spdf10
 #include "gpu_get2e_subs_grad.h"
-*/
+
 #ifdef CUDA_SPDF
 //===================================
 
@@ -264,7 +264,7 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf10
 #undef new_quick_2_gpu_get2e_subs_h
 #include "gpu_get2e_subs.h"
-/*#include "gpu_get2e_subs_grad.h"
+#include "gpu_get2e_subs_grad.h"
 
 //===================================
 
@@ -306,7 +306,7 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf9
 #undef int_spdf10
 #include "gpu_get2e_subs_grad.h"
-*/
+
 
 #ifdef CUDA_SPDF
 //===================================
@@ -458,6 +458,7 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef OSHELL
 
 #undef new_quick_2_gpu_get2e_subs_hrr_h
+#undef new_quick_2_gpu_get2e_subs_grad_h
 #undef SINGLE_PRECISION
 #undef QUICKDouble
 #define QUICKDouble double
