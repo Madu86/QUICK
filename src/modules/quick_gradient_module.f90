@@ -764,7 +764,8 @@ contains
      if (quick_method%bCUDA) then
   
         call gpu_upload_density_matrix(quick_qm_struct%dense)
-        call gpu_upload_cutoff(cutmatrix, quick_method%integralCutoff,quick_method%primLimit,quick_method%DMCutoff)
+        call gpu_upload_cutoff(cutmatrix, quick_method%integralCutoff,quick_method%primLimit,&
+                               quick_method%DMCutoff,quick_method%mpIntegralCutoff)
         call gpu_upload_grad(quick_method%gradCutoff)
 
 #ifdef OSHELL
