@@ -769,7 +769,6 @@ contains
 
 #if (defined(CUDA) || defined(CUDA_MPIV)) && defined(MIXED_PRECISION)
            quick_method%mpIntegralCutoff = (errormax * 0.5d0 * 10**6)**(1.0d0/0.7d0) * TEN_TO_MINUS6
-           write(*,*) "max diis error", quick_method%mpIntegralCutoff
 #endif
 
         !do I=1,nbasis; do J=1,nbasis
