@@ -28,15 +28,16 @@
  */
 template <typename T> struct cuda_buffer_type;
 struct gpu_calculated_type {
-    int                             natom;  // number of atom
-    int                             nbasis; // number of basis sets
-    cuda_buffer_type<QUICKDouble>*  o;      // O matrix
-    cuda_buffer_type<QUICKDouble>*  ob;     // beta O matrix
-    cuda_buffer_type<QUICKDouble>*  dense;  // Density Matrix
-    cuda_buffer_type<QUICKDouble>*  denseb; // Beta Density Matrix
-    cuda_buffer_type<QUICKULL>*     oULL;   // Unsigned long long int type O matrix
-    cuda_buffer_type<QUICKULL>*     obULL;  // Unsigned long long int type Ob matrix
+    int                             natom;    // number of atom
+    int                             nbasis;   // number of basis sets
+    cuda_buffer_type<QUICKDouble>*  o;        // O matrix
+    cuda_buffer_type<QUICKDouble>*  ob;       // beta O matrix
+    cuda_buffer_type<QUICKDouble>*  dense;    // Density Matrix
+    cuda_buffer_type<QUICKDouble>*  denseb;   // Beta Density Matrix
+    cuda_buffer_type<QUICKULL>*     oULL;     // Unsigned long long int type O matrix
+    cuda_buffer_type<QUICKULL>*     obULL;    // Unsigned long long int type Ob matrix
     cuda_buffer_type<QUICKDouble>*  distance; // distance matrix
+
 };
 
 struct gpu_timer_type{
@@ -153,7 +154,7 @@ struct gpu_simulation_type {
     QUICK_METHOD                    method;
     DFT_calculated_type*            DFT_calculated;
     XC_quadrature_type*             xcq;
-    QUICKDouble                     hyb_coeff;   
+    float                           hyb_coeff;   
     bool                            is_oshell;
  
     // used for DFT
@@ -331,6 +332,42 @@ struct gpu_simulation_type {
     int                             mpi_xcend;
 };
 
+// structure for single precision simulation type
+struct gpu_sp_simulation_type{
+
+    // topology
+    float*                    xyz;
+    float*                    distance;
+
+    // basis function info
+    float*                    aexp;
+    float*                    dcoeff;
+    float*                    gccoeff;
+    float*                    cons;
+    float*                    gcexpo;
+    float*                    Xcoeff;
+    float*                    expoSum;
+    float*                    weightedCenterX;
+    float*                    weightedCenterY;
+    float*                    weightedCenterZ;
+
+    // density matrix
+    float*                    dense;    
+    float*                    denseb;
+
+    // ERI cutoffs
+    float*                    YCutoff;
+    float*                    cutPrim;
+    float*                    cutMatrix;
+
+    float                     integralCutoff;
+    float                     mpIntegralCutoff;
+    float                     primLimit;
+    float                     DMCutoff;
+    float                     gradCutoff;
+
+};
+
 struct gpu_basis_type {
     int                             natom;
     int                             nbasis;
@@ -459,6 +496,7 @@ struct gpu_type {
     gpu_basis_type*                 gpu_basis;
     gpu_cutoff_type*                gpu_cutoff;
     gpu_simulation_type             gpu_sim;
+    gpu_sp_simulation_type          gpu_sp_sim;
     XC_quadrature_type*             gpu_xcq;
 
     cuda_buffer_type<ERI_entry>**   aoint_buffer;
@@ -485,6 +523,8 @@ struct cuda_buffer_type {
     T*              _hostData;   // data on host (CPU)
     T*              _devData;    // data on device (GPU)
     T*              _f90Data;    // if constructed from f90 array, it is the pointer
+
+    float*          _devDataFlt; // data on device (GPU) in float type, only required for MP   
     
     // constructor
     cuda_buffer_type(int length);
@@ -510,6 +550,7 @@ struct cuda_buffer_type {
     // use pinned data communication method. Upload and Download from host to device
     void Upload();      
     void UploadAsync();
+    void UploadFloat();
     void Download();
     void Download(T* f90Data);
     void DownloadSum(T* f90Data);
@@ -521,63 +562,63 @@ struct cuda_buffer_type {
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(int length) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _f90Data(NULL), _bPinned(false)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(int length, bool bPinned) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _f90Data(NULL), _bPinned(bPinned)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(bPinned)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(unsigned int length) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _f90Data(NULL), _bPinned(false)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(int length, int length2) :
-_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _f90Data(NULL), _bPinned(false)
+_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(unsigned int length, unsigned int length2) :
-_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _f90Data(NULL), _bPinned(false)
+_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(T* f90data, unsigned int length, unsigned int length2) :
-_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _f90Data(f90data), _bPinned(false)
+_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(T* f90data, int length, int length2) :
-_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _f90Data(f90data), _bPinned(false)
+_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(T* f90data, unsigned int length) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _f90Data(f90data), _bPinned(false)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(T* f90data, int length) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _f90Data(f90data), _bPinned(false)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
 {
     Allocate();
 }
@@ -604,6 +645,7 @@ void cuda_buffer_type<T> :: Allocate()
             PRINTERROR(status, " cudaMalloc cuda_buffer_type :: Allocate failed!");
             gpu->totalGPUMemory   += _length*_length2*sizeof(T);
             gpu->totalCPUMemory   += _length*_length2*sizeof(T);
+
             
             //Allocate CPU emembory
             _hostData = new T[_length*_length2];
@@ -739,6 +781,19 @@ void cuda_buffer_type<T> :: Deallocate()
     PRINTMEM("CPU--",gpu->totalCPUMemory);
     
 #endif
+
+    if (_devDataFlt != NULL) {
+        cudaFree(_devDataFlt);
+        _devDataFlt = NULL;
+#ifdef DEBUG
+        gpu->totalGPUMemory -= _length*_length2*sizeof(float);
+
+        PRINTMEM("GPU--",gpu->totalGPUMemory);
+        PRINTMEM("CPU  ",gpu->totalCPUMemory);
+
+#endif
+    }
+
     PRINTDEBUG("<<FINSH DEALLOCATION TEMPLATE")
 
 }
@@ -754,6 +809,34 @@ void cuda_buffer_type<T> :: Upload()
     PRINTERROR(status, " cudaMemcpy cuda_buffer_type :: Upload failed!");
     PRINTDEBUG("<<FINISH UPLOADING TEMPLATE")
 
+}
+
+// casting data on the device is more efficient that casting on host and uploading
+__global__ void gpu_float_cast_kernel(double *srcPtr, float* destPtr, unsigned int length );
+
+template <typename T>
+void cuda_buffer_type<T> :: UploadFloat()
+{
+
+    PRINTDEBUG(">>BEGIN TO UPLOAD TEMPLATE")
+
+    //Allocate GPU memeory
+    cudaError_t status = cudaMalloc((void**)&_devDataFlt,_length*_length2*sizeof(float));
+    PRINTERROR(status, " cudaMalloc cuda_buffer_type :: Allocate failed!");
+    gpu->totalGPUMemory   += _length*_length2*sizeof(float);
+
+    // cast a copy of _devData into float on device
+    gpu_float_cast_kernel<<<gpu -> blocks, SM_2X_2E_THREADS_PER_BLOCK>>>(_devData,_devDataFlt,_length*_length2); 
+
+    cudaDeviceSynchronize();
+
+    cudaError_t error = cudaGetLastError();
+
+    if (error != cudaSuccess && error != cudaErrorNotReady){
+      printf("%s.%s.%d: 0x%x %s\n", __FILE__, __FUNCTION__, __LINE__, error, cudaGetErrorString(error)); 
+      exit(1);                                                                                          
+    }
+    
 }
 
 template <typename T>
@@ -848,5 +931,18 @@ void cuda_buffer_type<T> :: DeleteGPU()
     
 #endif
     }
-    PRINTDEBUG("<<FINSH DELETE CPU")
+
+    if (_devDataFlt != NULL) {
+        cudaFree(_devDataFlt);
+        _devDataFlt = NULL;
+#ifdef DEBUG
+        gpu->totalGPUMemory -= _length*_length2*sizeof(float);
+
+        PRINTMEM("GPU--",gpu->totalGPUMemory);
+        PRINTMEM("CPU  ",gpu->totalCPUMemory);
+
+#endif
+    }
+
+    PRINTDEBUG("<<FINSH DELETE GPU")
 }
