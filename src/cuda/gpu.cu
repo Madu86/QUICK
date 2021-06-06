@@ -170,8 +170,8 @@ extern "C" void gpu_init_(int* ierr)
 #ifdef DEBUG
     fprintf(gpu->debugFile,"New Stack size limit:    %zu\n", val);
 #endif
-    
-	gpu->blocks = deviceProp.multiProcessorCount;
+   
+    gpu->blocks = deviceProp.multiProcessorCount;
     if (deviceProp.major ==1) {
         switch (deviceProp.minor) {
             case 0:
@@ -325,7 +325,7 @@ extern "C" void gpu_upload_method_(int* quick_method, bool* is_oshell, double* h
 	gpu -> gpu_sim.hyb_coeff = 0.0;
     }else if (*quick_method == 3) {
 	gpu -> gpu_sim.method = LIBXC;
-	gpu -> gpu_sim.hyb_coeff = *hyb_coeff;
+	gpu -> gpu_sim.hyb_coeff = (float) *hyb_coeff;
     }
 
     gpu -> gpu_sim.is_oshell = *is_oshell;
@@ -386,6 +386,14 @@ extern "C" void gpu_upload_xyz_(QUICKDouble* atom_xyz)
     gpu -> gpu_sim.xyz =  gpu -> xyz -> _devData;
     gpu -> gpu_sim.distance = gpu -> gpu_calculated -> distance -> _devData;
     
+#ifdef MIXED_PRECISION
+    gpu -> xyz -> UploadFloat();
+    gpu -> gpu_calculated -> distance -> UploadFloat();
+
+    gpu -> gpu_sp_sim.xyz      = gpu -> xyz -> _devDataFlt;
+    gpu -> gpu_sp_sim.distance = gpu -> gpu_calculated -> distance -> _devDataFlt;
+#endif
+
 #ifdef DEBUG
     cudaEventRecord(end, 0);
     cudaEventSynchronize(end);
@@ -456,6 +464,20 @@ extern "C" void gpu_upload_cutoff_(QUICKDouble* cutMatrix, QUICKDouble* integral
     gpu -> gpu_sim.primLimit        = gpu -> gpu_cutoff -> primLimit;
     gpu -> gpu_sim.DMCutoff         = gpu -> gpu_cutoff -> DMCutoff;
     gpu -> gpu_sim.mpIntegralCutoff = gpu -> gpu_cutoff -> mpIntegralCutoff;
+
+
+#ifdef MIXED_PRECISION
+    gpu -> gpu_cutoff -> cutMatrix -> UploadFloat();
+
+    gpu -> gpu_sp_sim.cutMatrix         = gpu -> gpu_cutoff -> cutMatrix -> _devDataFlt;
+    gpu -> gpu_sp_sim.integralCutoff    = (float) gpu -> gpu_cutoff -> integralCutoff;
+    gpu -> gpu_sp_sim.mpIntegralCutoff  = (float) gpu -> gpu_cutoff -> mpIntegralCutoff;
+    gpu -> gpu_sp_sim.primLimit         = (float) gpu -> gpu_cutoff -> primLimit;
+    gpu -> gpu_sp_sim.DMCutoff          = (float) gpu -> gpu_cutoff -> DMCutoff;
+
+#endif
+
+    printf("MP int cutoff: %.10e \n",gpu -> gpu_cutoff -> mpIntegralCutoff);
 
 #ifdef DEBUG
     cudaEventRecord(end, 0);
@@ -1076,6 +1098,15 @@ extern "C" void gpu_upload_cutoff_matrix_(QUICKDouble* YCutoff,QUICKDouble* cutP
     gpu -> gpu_sim.cutPrim          = gpu -> gpu_cutoff -> cutPrim -> _devData;
     gpu -> gpu_sim.sorted_YCutoffIJ = gpu -> gpu_cutoff -> sorted_YCutoffIJ  -> _devData;
 
+#ifdef MIXED_PRECISION
+    gpu -> gpu_cutoff -> YCutoff    -> UploadFloat();
+    gpu -> gpu_cutoff -> cutPrim    -> UploadFloat();
+
+    gpu -> gpu_sp_sim.YCutoff = gpu -> gpu_cutoff -> YCutoff -> _devDataFlt;
+    gpu -> gpu_sp_sim.cutPrim = gpu -> gpu_cutoff -> cutPrim -> _devDataFlt;
+#endif
+
+
 #ifdef CUDA_MPIV
 
    cudaEvent_t t_start, t_end;
@@ -1165,7 +1196,15 @@ extern "C" void gpu_upload_calculated_(QUICKDouble* o, QUICKDouble* co, QUICKDou
     gpu -> gpu_sim.dense             =  gpu -> gpu_calculated -> dense -> _devData;
     gpu -> gpu_sim.oULL              =  gpu -> gpu_calculated -> oULL -> _devData;
     
-    
+#ifdef MIXED_PRECISION
+    /* To minimize duplicate data uploading, we will simply cast dense values and store in densef
+       using a device kernel. */
+printf("uploading dense float \n");
+    gpu -> gpu_calculated -> dense    -> UploadFloat();
+    gpu -> gpu_sp_sim.dense = gpu -> gpu_calculated -> dense -> _devDataFlt;  
+printf("uploading dense float done\n");
+#endif
+
 #ifdef DEBUG
     cudaEventRecord(end, 0);
     cudaEventSynchronize(end);
@@ -1226,6 +1265,12 @@ extern "C" void gpu_upload_calculated_beta_(QUICKDouble* ob, QUICKDouble* denseb
     gpu -> gpu_sim.denseb             =  gpu -> gpu_calculated -> denseb -> _devData;
     gpu -> gpu_sim.obULL              =  gpu -> gpu_calculated -> obULL -> _devData;
 
+#ifdef MIXED_PRECISION
+    /* To minimize duplicate data uploading, we will simply cast dense values and store in densef
+       using a device kernel. */
+    gpu -> gpu_calculated -> denseb    -> UploadFloat();
+    gpu -> gpu_sp_sim.denseb = gpu -> gpu_calculated -> denseb -> _devDataFlt;
+#endif
 
 #ifdef DEBUG
     cudaEventRecord(end, 0);
@@ -1562,7 +1607,32 @@ extern "C" void gpu_upload_basis_(int* nshell, int* nprim, int* jshell, int* jba
     gpu -> gpu_sim.cons                         =   gpu -> gpu_basis -> cons -> _devData;
     gpu -> gpu_sim.gcexpo                       =   gpu -> gpu_basis -> gcexpo -> _devData;
     gpu -> gpu_sim.KLMN                         =   gpu -> gpu_basis -> KLMN -> _devData;
-    
+   
+#ifdef MIXED_PRECISION
+
+    gpu -> gpu_basis -> aexp    -> UploadFloat();
+    gpu -> gpu_basis -> dcoeff  -> UploadFloat();
+    gpu -> gpu_basis -> gccoeff  -> UploadFloat();
+    gpu -> gpu_basis -> cons  -> UploadFloat();
+    gpu -> gpu_basis -> gcexpo  -> UploadFloat();
+    gpu -> gpu_basis -> Xcoeff  -> UploadFloat();
+    gpu -> gpu_basis -> expoSum  -> UploadFloat();
+    gpu -> gpu_basis -> weightedCenterX  -> UploadFloat();
+    gpu -> gpu_basis -> weightedCenterY  -> UploadFloat();
+    gpu -> gpu_basis -> weightedCenterZ  -> UploadFloat();
+
+    gpu -> gpu_sp_sim.aexp = gpu -> gpu_basis -> aexp -> _devDataFlt;
+    gpu -> gpu_sp_sim.dcoeff = gpu -> gpu_basis -> dcoeff -> _devDataFlt;
+    gpu -> gpu_sp_sim.gccoeff = gpu -> gpu_basis -> gccoeff -> _devDataFlt;
+    gpu -> gpu_sp_sim.cons = gpu -> gpu_basis -> cons -> _devDataFlt;
+    gpu -> gpu_sp_sim.gcexpo = gpu -> gpu_basis -> gcexpo -> _devDataFlt;
+    gpu -> gpu_sp_sim.Xcoeff = gpu -> gpu_basis -> Xcoeff -> _devDataFlt;
+    gpu -> gpu_sp_sim.expoSum = gpu -> gpu_basis -> expoSum -> _devDataFlt;
+    gpu -> gpu_sp_sim.weightedCenterX = gpu -> gpu_basis -> weightedCenterX -> _devDataFlt;
+    gpu -> gpu_sp_sim.weightedCenterY = gpu -> gpu_basis -> weightedCenterY -> _devDataFlt;
+    gpu -> gpu_sp_sim.weightedCenterZ = gpu -> gpu_basis -> weightedCenterZ -> _devDataFlt;
+
+#endif 
     
     gpu -> gpu_basis -> expoSum -> DeleteCPU();
     gpu -> gpu_basis -> weightedCenterX -> DeleteCPU();
