@@ -49,3 +49,16 @@ void gpu_basis_type :: upload_all()
     this->sorted_Qnumber->Upload();
     
 }
+
+__global__ void gpu_float_cast_kernel(double *srcPtr, float* destPtr, unsigned int length ){
+
+  unsigned int offset = blockIdx.x*blockDim.x+threadIdx.x;
+  int totalThreads = blockDim.x*gridDim.x;
+
+  for (QUICKULL gid = offset; gid < length; gid += totalThreads) {
+    destPtr[gid] = (float) srcPtr[gid];  
+  } 
+ 
+}
+
+
