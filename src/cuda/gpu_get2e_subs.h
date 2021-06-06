@@ -15,7 +15,6 @@
 #define STOREDIM STOREDIM_L
 #endif
 
-#ifndef SINGLE_PRECISION // start of double precision only code paths
 
 /*
 To understand the following comments better, please refer to Figure 2(b) and 2(d) in Miao and Merz 2015 paper. 
@@ -75,7 +74,83 @@ To understand the following comments better, please refer to Figure 2(b) and 2(d
 
  */
 
-#ifdef OSHELL
+#ifdef SINGLE_PRECISION // global kernels for single precision version
+
+#ifdef OSHELL // global kernels for open shell version
+#ifdef int_spd
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel()
+#elif defined int_spdf
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf()
+#elif defined int_spdf2
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf2()
+#elif defined int_spdf3
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf3()
+#elif defined int_spdf4
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf4()
+#elif defined int_spdf5
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf5()
+#elif defined int_spdf6
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf6()
+#elif defined int_spdf7
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf7()
+#elif defined int_spdf8
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf8()
+#elif defined int_spdf9
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf9()
+#elif defined int_spdf10
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_sp_eri_kernel_spdf10()
+#endif
+#else // global kernels for closed shell version
+#ifdef int_spd
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel()
+#elif defined int_spdf
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf()
+#elif defined int_spdf2
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf2()
+#elif defined int_spdf3
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf3()
+#elif defined int_spdf4
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf4()
+#elif defined int_spdf5
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf5()
+#elif defined int_spdf6
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf6()
+#elif defined int_spdf7
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf7()
+#elif defined int_spdf8
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf8()
+#elif defined int_spdf9
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf9()
+#elif defined int_spdf10
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) sp_get2e_kernel_spdf10()
+#endif
+#endif
+
+#else // global kernels for double precision version
+
+#ifdef OSHELL // global kernels for open shell version
 #ifdef int_spd
 __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel()
@@ -110,7 +185,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_spdf9()
 __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_spdf10()
 #endif
-#else
+#else // global kernels for closed shell version
 #ifdef int_spd
 __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel()
@@ -144,6 +219,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf9()
 #elif defined int_spdf10
 __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
+#endif
 #endif
 #endif
 {
@@ -425,14 +501,31 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                 int lll = devSim.sorted_Qnumber[LL];
 
 #ifdef MIXED_PRECISION
-
+                QUICKDouble var1=LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell);
+                QUICKDouble var2=LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax;
+#ifdef SINGLE_PRECISION
+/*
                 if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) < devSim.mpIntegralCutoff && \
                     (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) < devSim.mpIntegralCutoff) {
+*/
+                if(var1 < devSim.mpIntegralCutoff && var2 < devSim.mpIntegralCutoff) {               
+#else
+/*
+                if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) >= devSim.mpIntegralCutoff && \
+                    (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) >= devSim.mpIntegralCutoff) {
+*/
+                if( !(var1 < devSim.mpIntegralCutoff && var2 < devSim.mpIntegralCutoff) ) {
+#endif
 
-#undef QUICKDouble
-#define QUICKDouble float
+#ifdef SINGLE_PRECISION
+//                   printf("SP shell %d %d %d %d %.10e %.10e %.10e\n", ii, jj, kk, ll, var1, var2, devSim.mpIntegralCutoff);
+#else
+//                   printf("DP shell %d %d %d %d %.10e %.10e %.10e\n", ii, jj, kk, ll, var1, var2, devSim.mpIntegralCutoff);
+#endif
+#endif
+//#undef QUICKDouble
+//#define QUICKDouble float
                 
-// code paths for single precision, QUICKDouble will replaced by float during preprocessing
 #ifdef OSHELL
 #ifdef int_spd
                     iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, (QUICKDouble) DNMax);
@@ -563,14 +656,15 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                     }
 #endif
 #endif
-                }else{
+//                }else{
 
-#undef QUICKDouble
-#define QUICKDouble double
+//#undef QUICKDouble
+//#define QUICKDouble double
 
-#endif
+//#endif
 
 // code paths double precision
+/*
 #ifdef OSHELL
 #ifdef int_spd
                     iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
@@ -703,7 +797,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                     }
 #endif
 #endif
-
+*/
 #ifdef MIXED_PRECISION
                 }          
 #endif
@@ -716,7 +810,6 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
     }
 }
 
-#endif // end of double precision only code paths
 
 /*
  iclass subroutine is to generate 2-electron intergral using HRR and VRR method, which is the most
@@ -773,7 +866,13 @@ __device__ __forceinline__ void iclass_spdf10
 #endif
                                       (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax)
 {
-    
+   
+#ifdef SINGLE_PRECISION
+//                   printf("SP iclass %d %d %d %d \n", II, JJ, KK, LL);
+#else
+//                   printf("DP iclass %d %d %d %d \n", II, JJ, KK, LL);
+#endif
+ 
     /*
      kAtom A, B, C ,D is the coresponding atom for shell ii, jj, kk, ll
      and be careful with the index difference between Fortran and C++,
@@ -1179,9 +1278,9 @@ __device__ __forceinline__ void iclass_spdf10
 #endif
                         {
 #ifdef OSHELL
-                            addint_oshell(devSim.oULL,devSim.obULL, Y, III, JJJ, KKK, LLL, devSim.hyb_coeff, devSim.dense, devSim.denseb, devSim.nbasis);
+                            addint_oshell(devSim.oULL,devSim.obULL, Y, III, JJJ, KKK, LLL, (QUICKDouble) devSim.hyb_coeff, devSim.nbasis);
 #else
-                            addint(devSim.oULL, Y, III, JJJ, KKK, LLL, devSim.hyb_coeff, devSim.dense, devSim.nbasis);
+                            addint(devSim.oULL, Y, III, JJJ, KKK, LLL, (QUICKDouble) devSim.hyb_coeff, devSim.nbasis);
 #endif
                         }
                         
@@ -1649,26 +1748,26 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
 
 
 #ifdef OSHELL
-__device__ __forceinline__ void addint_oshell(QUICKULL* oULL, QUICKULL* obULL,QUICKDouble Y, int III, int JJJ, int KKK, int LLL,QUICKDouble hybrid_coeff,  QUICKDouble* dense, QUICKDouble* denseb,int nbasis)
+__device__ __forceinline__ void addint_oshell(QUICKULL* oULL, QUICKULL* obULL,QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis)
 #else
-__device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, int JJJ, int KKK, int LLL,QUICKDouble hybrid_coeff,  QUICKDouble* dense, int nbasis)
+__device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis)
 #endif
 {
-    
+
 #ifdef OSHELL
-    QUICKDouble DENSELK = (QUICKDouble) (LOC2(dense, LLL-1, KKK-1, nbasis, nbasis)+LOC2(denseb, LLL-1, KKK-1, nbasis, nbasis));
-    QUICKDouble DENSEJI = (QUICKDouble) (LOC2(dense, JJJ-1, III-1, nbasis, nbasis)+LOC2(denseb, JJJ-1, III-1, nbasis, nbasis));
 
-    QUICKDouble DENSEKIA = (QUICKDouble) LOC2(dense, KKK-1, III-1, nbasis, nbasis);
-    QUICKDouble DENSEKJA = (QUICKDouble) LOC2(dense, KKK-1, JJJ-1, nbasis, nbasis);
-    QUICKDouble DENSELJA = (QUICKDouble) LOC2(dense, LLL-1, JJJ-1, nbasis, nbasis);
-    QUICKDouble DENSELIA = (QUICKDouble) LOC2(dense, LLL-1, III-1, nbasis, nbasis);
+    QUICKDouble DENSELK = (LOC2(DEVSIM.dense, LLL-1, KKK-1, nbasis, nbasis)+LOC2(DEVSIM.denseb, LLL-1, KKK-1, nbasis, nbasis));
+    QUICKDouble DENSEJI = (LOC2(DEVSIM.dense, JJJ-1, III-1, nbasis, nbasis)+LOC2(DEVSIM.denseb, JJJ-1, III-1, nbasis, nbasis));
 
-    QUICKDouble DENSEKIB = (QUICKDouble) LOC2(denseb, KKK-1, III-1, nbasis, nbasis);
-    QUICKDouble DENSEKJB = (QUICKDouble) LOC2(denseb, KKK-1, JJJ-1, nbasis, nbasis);
-    QUICKDouble DENSELJB = (QUICKDouble) LOC2(denseb, LLL-1, JJJ-1, nbasis, nbasis);
-    QUICKDouble DENSELIB = (QUICKDouble) LOC2(denseb, LLL-1, III-1, nbasis, nbasis);
+    QUICKDouble DENSEKIA = LOC2(DEVSIM.dense, KKK-1, III-1, nbasis, nbasis);
+    QUICKDouble DENSEKJA = LOC2(DEVSIM.dense, KKK-1, JJJ-1, nbasis, nbasis);
+    QUICKDouble DENSELJA = LOC2(DEVSIM.dense, LLL-1, JJJ-1, nbasis, nbasis);
+    QUICKDouble DENSELIA = LOC2(DEVSIM.dense, LLL-1, III-1, nbasis, nbasis);
 
+    QUICKDouble DENSEKIB = LOC2(DEVSIM.denseb, KKK-1, III-1, nbasis, nbasis);
+    QUICKDouble DENSEKJB = LOC2(DEVSIM.denseb, KKK-1, JJJ-1, nbasis, nbasis);
+    QUICKDouble DENSELJB = LOC2(DEVSIM.denseb, LLL-1, JJJ-1, nbasis, nbasis);
+    QUICKDouble DENSELIB = LOC2(DEVSIM.denseb, LLL-1, III-1, nbasis, nbasis);
 
     // ATOMIC ADD VALUE 1
     QUICKDouble _tmp = 2.0;
@@ -1795,13 +1894,12 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
 
 #else
 
-    QUICKDouble DENSEKI = (QUICKDouble) LOC2(dense, KKK-1, III-1, nbasis, nbasis);
-    QUICKDouble DENSEKJ = (QUICKDouble) LOC2(dense, KKK-1, JJJ-1, nbasis, nbasis);
-    QUICKDouble DENSELJ = (QUICKDouble) LOC2(dense, LLL-1, JJJ-1, nbasis, nbasis);
-    QUICKDouble DENSELI = (QUICKDouble) LOC2(dense, LLL-1, III-1, nbasis, nbasis);
-    QUICKDouble DENSELK = (QUICKDouble) LOC2(dense, LLL-1, KKK-1, nbasis, nbasis);
-    QUICKDouble DENSEJI = (QUICKDouble) LOC2(dense, JJJ-1, III-1, nbasis, nbasis);
-    
+    QUICKDouble DENSEKI = LOC2(DEVSIM.dense, KKK-1, III-1, nbasis, nbasis);
+    QUICKDouble DENSEKJ = LOC2(DEVSIM.dense, KKK-1, JJJ-1, nbasis, nbasis);
+    QUICKDouble DENSELJ = LOC2(DEVSIM.dense, LLL-1, JJJ-1, nbasis, nbasis);
+    QUICKDouble DENSELI = LOC2(DEVSIM.dense, LLL-1, III-1, nbasis, nbasis);
+    QUICKDouble DENSELK = LOC2(DEVSIM.dense, LLL-1, KKK-1, nbasis, nbasis);
+    QUICKDouble DENSEJI = LOC2(DEVSIM.dense, JJJ-1, III-1, nbasis, nbasis);
     
     // ATOMIC ADD VALUE 1
     QUICKDouble _tmp = 2.0;
@@ -1813,8 +1911,17 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
     QUICKULL val1 = (QUICKULL) (fabs(val1d*OSCALE) + (QUICKDouble)0.5);
     if ( val1d < (QUICKDouble)0.0) val1 = 0ull - val1;
     QUICKADD(LOC2(oULL, JJJ-1, III-1, nbasis, nbasis), val1);
-    
-    
+
+/*
+#ifdef SINGLE_PRECISION
+   if(JJJ-1 == 0 && III-1 == 0)
+                   printf("SP addint Y DENSELK hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELK, hybrid_coeff,val1d, val1);
+#else
+   if(JJJ-1 == 0 && III-1 == 0)
+                   printf("DP addint Y DENSELK hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELK, hybrid_coeff,val1d, val1);
+#endif
+*/
+
     // ATOMIC ADD VALUE 2
     if ((LLL != JJJ) || (III!=KKK)) {
         _tmp = 2.0;
@@ -1826,6 +1933,22 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
         QUICKULL val2 = (QUICKULL) (fabs(val2d*OSCALE) + (QUICKDouble)0.5);
         if ( val2d < (QUICKDouble)0.0) val2 = 0ull - val2;
         QUICKADD(LOC2(oULL, LLL-1, KKK-1, nbasis, nbasis), val2);
+
+/*
+#ifdef SINGLE_PRECISION
+   if(LLL-1 == 0 && KKK-1 == 0)
+                   printf("SP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEJI, hybrid_coeff,val2d, val2);
+#else
+   if(LLL-1 == 0 && KKK-1 == 0)
+                   printf("DP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELK, hybrid_coeff,val2d, val2);
+#endif
+*/
+/*#ifdef SINGLE_PRECISION
+                   printf("SP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEJI, hybrid_coeff,val2d, val2);        
+#else
+                   printf("DP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEJI, hybrid_coeff,val2d, val2);        
+#endif
+*/
     }
     
     
@@ -1839,6 +1962,16 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
     if ( DENSELJ*Y < (QUICKDouble)0.0) val3 = 0ull - val3;
     QUICKADD(LOC2(oULL, KKK-1, III-1, nbasis, nbasis), 0ull-val3);
     
+/*
+#ifdef SINGLE_PRECISION
+   if(III-1 == 0 && KKK-1 == 0)
+                   printf("SP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELJ, hybrid_coeff,val3d, val3);
+#else
+   if(III-1 == 0 && KKK-1 == 0)
+                   printf("DP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELJ, hybrid_coeff,val3d, val3);
+#endif
+*/
+
     // ATOMIC ADD VALUE 4
     if (KKK != LLL) {
         QUICKDouble val4d = hybrid_coeff*0.5*DENSEKJ*Y;
@@ -1846,6 +1979,22 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
         QUICKULL val4 = (QUICKULL) (fabs(val4d*OSCALE) + (QUICKDouble)0.5);
         if ( val4d < (QUICKDouble)0.0) val4 = 0ull - val4;
         QUICKADD(LOC2(oULL, LLL-1, III-1, nbasis, nbasis), 0ull-val4);
+
+/*
+#ifdef SINGLE_PRECISION
+   if(III-1 == 0 && LLL-1 == 0)
+                   printf("SP addint Y DENSEKJ hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKJ, hybrid_coeff,val4d, val4);
+#else
+   if(III-1 == 0 && LLL-1 == 0)
+                   printf("DP addint Y DENSEKJ hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKJ, hybrid_coeff,val4d, val4);
+#endif
+*/
+/*#ifdef SINGLE_PRECISION
+                   printf("SP addint Y DENSEKJ hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKJ, hybrid_coeff,val4d, val4);        
+#else
+                   printf("DP addint Y DENSEKJ hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKJ, hybrid_coeff,val4d, val4);
+#endif
+*/
     }
     
     
@@ -1858,12 +2007,40 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
     
     if ((III != JJJ && III<KKK) || ((III == JJJ) && (III == KKK) && (III < LLL)) || ((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
         QUICKADD(LOC2(oULL, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0ull-val5);
+/*
+#ifdef SINGLE_PRECISION
+   if((MAX(JJJ,KKK)-1) == 0 && (MIN(JJJ,KKK)-1) == 0)
+                   printf("SP addint Y DENSELI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELI, hybrid_coeff,val5d, val5);
+#else
+   if((MAX(JJJ,KKK)-1) == 0 && (MIN(JJJ,KKK)-1) == 0)
+                   printf("DP addint Y DENSELI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELI, hybrid_coeff,val5d, val5);
+#endif
+*/
     }
-    
+   
+
+#ifdef SINGLE_PRECISION
+//                   printf("SP addint val1 val3 val5 %d %d %d %d %f %f %f %f %lu %lu %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, val1d, val3d, val5d,  val1, val3, val5);
+//                   printf("SP addint val1 val3 val5 %d %d %d %d %f %f %f %f \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELJ, hybrid_coeff,val3d);
+
+#else
+//                   printf("DP addint val1 val3 val5 %d %d %d %d %f %f %f %f %lu %lu %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, val1d, val3d, val5d, val1, val3, val5);
+//                   printf("DP addint val1 val3 val5 %d %d %d %d %f %f %f %f \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELJ, hybrid_coeff,val3d);
+
+#endif 
     
     // ATOMIC ADD VALUE 5 - 2
     if ( III != JJJ && JJJ == KKK) {
         QUICKADD(LOC2(oULL, JJJ-1, KKK-1, nbasis, nbasis), 0ull-val5);
+/*
+#ifdef SINGLE_PRECISION
+   if( JJJ-1 == 0 && KKK-1 == 0)
+                   printf("SP addint Y DENSELI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELI, hybrid_coeff,val5d, val5);
+#else
+   if( JJJ-1 == 0 && KKK-1 == 0)
+                   printf("DP addint Y DENSELI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELI, hybrid_coeff,val5d, val5);
+#endif
+*/
     }
     
     // ATOMIC ADD VALUE 6
@@ -1874,11 +2051,36 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
             if ( val6d < (QUICKDouble)0.0) val6 = 0ull - val6;
             
             QUICKADD(LOC2(oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6);
-            
+
+/*
+#ifdef SINGLE_PRECISION
+   if( (MAX(JJJ,LLL)-1) == 0 && (MIN(JJJ,LLL)-1) == 0)
+                   printf("SP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
+#else
+   if( (MAX(JJJ,LLL)-1) == 0 && (MIN(JJJ,LLL)-1) == 0)
+                   printf("DP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
+#endif
+*/            
             // ATOMIC ADD VALUE 6 - 2
             if (JJJ == LLL && III!= KKK) {
                 QUICKADD(LOC2(oULL, LLL-1, JJJ-1, nbasis, nbasis), 0ull-val6);
+/*
+#ifdef SINGLE_PRECISION
+   if( LLL-1 == 0 && JJJ-1 == 0)
+                   printf("SP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
+#else
+   if( LLL-1 == 0 && JJJ-1 == 0)
+                   printf("DP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
+#endif
+*/
             }
+
+/*#ifdef SINGLE_PRECISION
+                   printf("SP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
+#else
+                   printf("DP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
+#endif
+*/
         }
     }
 #endif
