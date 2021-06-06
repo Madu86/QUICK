@@ -41,7 +41,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole(int I, int J, int K, int L, \
             }
         }
     }
-    Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+    Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     //#endif
     return Y;
 }
@@ -78,7 +78,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2(int I, int J, int K, int L, \
         }
     }
     
-    Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+    Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     //#endif
     return Y;
 }
@@ -113,7 +113,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_1(int I, int J, int K, int L, \
             }
         }
         
-        Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+        Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
     }
     
@@ -130,7 +130,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_1(int I, int J, int K, int L, \
         }
     }
     
-    Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+    Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     //#endif
     return Y;
 }
@@ -166,7 +166,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_2(int I, int J, int K, int L, \
         }
         
         
-        Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+        Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         
         return Y;
     }
@@ -185,7 +185,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_2(int I, int J, int K, int L, \
         }
     }
     
-    Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+    Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     //#endif
     return Y;
 }
@@ -214,7 +214,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_5(int I, int J, int K, int L, \
                              (int) LOC3(devTrans, LOC2(devSim.KLMN,0,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,0,LLL-1,3,devSim.nbasis), \
                                         LOC2(devSim.KLMN,1,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,1,LLL-1,3,devSim.nbasis), \
                                         LOC2(devSim.KLMN,2,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,2,LLL-1,3,devSim.nbasis), TRANSDIM, TRANSDIM, TRANSDIM)-1 , \
-                             STOREDIM, STOREDIM) * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+                             STOREDIM, STOREDIM) * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
         
     }
@@ -240,7 +240,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_5(int I, int J, int K, int L, \
         }
     }
     
-    Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+    Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     return Y;
     
 }
@@ -267,7 +267,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_6(int I, int J, int K, int L, \
                              (int) LOC3(devTrans, LOC2(devSim.KLMN,0,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,0,LLL-1,3,devSim.nbasis), \
                                         LOC2(devSim.KLMN,1,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,1,LLL-1,3,devSim.nbasis), \
                                         LOC2(devSim.KLMN,2,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,2,LLL-1,3,devSim.nbasis), TRANSDIM, TRANSDIM, TRANSDIM)-1 , \
-                             STOREDIM, STOREDIM) * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+                             STOREDIM, STOREDIM) * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
         
     }
@@ -293,7 +293,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_6(int I, int J, int K, int L, \
     }
     
     
-    Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+    Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     
     return Y;
     
@@ -324,7 +324,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_3(int I, int J, int K, int L, \
                  (int) LOC3(devTrans, LOC2(devSim.KLMN,0,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,0,LLL-1,3,devSim.nbasis), \
                             LOC2(devSim.KLMN,1,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,1,LLL-1,3,devSim.nbasis), \
                             LOC2(devSim.KLMN,2,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,2,LLL-1,3,devSim.nbasis), TRANSDIM, TRANSDIM, TRANSDIM)-1 , \
-                 STOREDIM, STOREDIM) * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+                 STOREDIM, STOREDIM) * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
         
     }
@@ -351,7 +351,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_3(int I, int J, int K, int L, \
             }
         }
         
-        Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+        Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
         
     }
@@ -377,7 +377,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_3(int I, int J, int K, int L, \
         }
         
         
-        Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+        Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
     }
     
@@ -403,7 +403,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_3(int I, int J, int K, int L, \
             }
         }
         
-        Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+        Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
     }
     
@@ -438,7 +438,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_4(int I, int J, int K, int L, \
                  (int) LOC3(devTrans, LOC2(devSim.KLMN,0,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,0,LLL-1,3,devSim.nbasis), \
                             LOC2(devSim.KLMN,1,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,1,LLL-1,3,devSim.nbasis), \
                             LOC2(devSim.KLMN,2,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,2,LLL-1,3,devSim.nbasis), TRANSDIM, TRANSDIM, TRANSDIM)-1 , \
-                 STOREDIM, STOREDIM) * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+                 STOREDIM, STOREDIM) * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
         
     }else{ //k=3 and l = 3, for i and j , i = 3 and j = 3
@@ -463,7 +463,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_4(int I, int J, int K, int L, \
         }
         
         
-        Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+        Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     }
     return Y;
 }
@@ -486,7 +486,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_7(int I, int J, int K, int L, \
                  (int) LOC3(devTrans, LOC2(devSim.KLMN,0,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,0,LLL-1,3,devSim.nbasis), \
                             LOC2(devSim.KLMN,1,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,1,LLL-1,3,devSim.nbasis), \
                             LOC2(devSim.KLMN,2,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,2,LLL-1,3,devSim.nbasis), TRANSDIM, TRANSDIM, TRANSDIM)-1 , \
-                 STOREDIM, STOREDIM) * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+                 STOREDIM, STOREDIM) * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         return Y;
     }else{
         
@@ -508,7 +508,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_7(int I, int J, int K, int L, \
             }
         }
         
-        Y = Y * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+        Y = Y * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
         
         return Y;
     }
@@ -531,7 +531,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_8(int I, int J, int K, int L, \
                          (int) LOC3(devTrans, LOC2(devSim.KLMN,0,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,0,LLL-1,3,devSim.nbasis), \
                                     LOC2(devSim.KLMN,1,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,1,LLL-1,3,devSim.nbasis), \
                                     LOC2(devSim.KLMN,2,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,2,LLL-1,3,devSim.nbasis), TRANSDIM, TRANSDIM, TRANSDIM)-1 , \
-                         STOREDIM, STOREDIM) * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+                         STOREDIM, STOREDIM) * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     
     return Y;
 }
@@ -550,7 +550,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_9(int I, int J, int K, int L, \
                          (int) LOC3(devTrans, LOC2(devSim.KLMN,0,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,0,LLL-1,3,devSim.nbasis), \
                                     LOC2(devSim.KLMN,1,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,1,LLL-1,3,devSim.nbasis), \
                                     LOC2(devSim.KLMN,2,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,2,LLL-1,3,devSim.nbasis), TRANSDIM, TRANSDIM, TRANSDIM)-1 , \
-                         STOREDIM, STOREDIM) * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+                         STOREDIM, STOREDIM) * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     
     return Y;
 }
@@ -569,7 +569,7 @@ __device__ __forceinline__ QUICKDouble hrrwhole2_10(int I, int J, int K, int L, 
                          (int) LOC3(devTrans, LOC2(devSim.KLMN,0,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,0,LLL-1,3,devSim.nbasis), \
                                     LOC2(devSim.KLMN,1,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,1,LLL-1,3,devSim.nbasis), \
                                     LOC2(devSim.KLMN,2,KKK-1,3,devSim.nbasis) + LOC2(devSim.KLMN,2,LLL-1,3,devSim.nbasis), TRANSDIM, TRANSDIM, TRANSDIM)-1 , \
-                         STOREDIM, STOREDIM) * devSim.cons[III-1] * devSim.cons[JJJ-1] * devSim.cons[KKK-1] * devSim.cons[LLL-1];
+                         STOREDIM, STOREDIM) * DEVSIM.cons[III-1] * DEVSIM.cons[JJJ-1] * DEVSIM.cons[KKK-1] * DEVSIM.cons[LLL-1];
     
     return Y;
 }

@@ -501,20 +501,20 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                 int lll = devSim.sorted_Qnumber[LL];
 
 #ifdef MIXED_PRECISION
-                QUICKDouble var1=LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell);
-                QUICKDouble var2=LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax;
+                QUICKDouble var1=LOC2(DEVSIM.YCutoff, kk, ll, nshell, nshell) * LOC2(DEVSIM.YCutoff, ii, jj, nshell, nshell);
+                QUICKDouble var2=LOC2(DEVSIM.YCutoff, kk, ll, nshell, nshell) * LOC2(DEVSIM.YCutoff, ii, jj, nshell, nshell) * DNMax;
 #ifdef SINGLE_PRECISION
 /*
                 if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) < devSim.mpIntegralCutoff && \
                     (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) < devSim.mpIntegralCutoff) {
 */
-                if(var1 < devSim.mpIntegralCutoff && var2 < devSim.mpIntegralCutoff) {               
+                if(var1 < DEVSIM.mpIntegralCutoff && var2 < DEVSIM.mpIntegralCutoff) {               
 #else
 /*
                 if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell)) >= devSim.mpIntegralCutoff && \
                     (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) >= devSim.mpIntegralCutoff) {
 */
-                if( !(var1 < devSim.mpIntegralCutoff && var2 < devSim.mpIntegralCutoff) ) {
+                if( !(var1 < DEVSIM.mpIntegralCutoff && var2 < DEVSIM.mpIntegralCutoff) ) {
 #endif
 
 #ifdef SINGLE_PRECISION
@@ -883,13 +883,13 @@ __device__ __forceinline__ void iclass_spdf10
      which means they are corrosponding coorinates for shell II, JJ, KK, and LL.
      And we don't need the coordinates now, so we will not retrieve the data now.
      */
-    QUICKDouble RAx = LOC2(devSim.xyz, 0 , devSim.katom[II]-1, 3, devSim.natom);
-    QUICKDouble RAy = LOC2(devSim.xyz, 1 , devSim.katom[II]-1, 3, devSim.natom);
-    QUICKDouble RAz = LOC2(devSim.xyz, 2 , devSim.katom[II]-1, 3, devSim.natom);
+    QUICKDouble RAx = LOC2(DEVSIM.xyz, 0 , devSim.katom[II]-1, 3, devSim.natom);
+    QUICKDouble RAy = LOC2(DEVSIM.xyz, 1 , devSim.katom[II]-1, 3, devSim.natom);
+    QUICKDouble RAz = LOC2(DEVSIM.xyz, 2 , devSim.katom[II]-1, 3, devSim.natom);
     
-    QUICKDouble RCx = LOC2(devSim.xyz, 0 , devSim.katom[KK]-1, 3, devSim.natom);
-    QUICKDouble RCy = LOC2(devSim.xyz, 1 , devSim.katom[KK]-1, 3, devSim.natom);
-    QUICKDouble RCz = LOC2(devSim.xyz, 2 , devSim.katom[KK]-1, 3, devSim.natom);
+    QUICKDouble RCx = LOC2(DEVSIM.xyz, 0 , devSim.katom[KK]-1, 3, devSim.natom);
+    QUICKDouble RCy = LOC2(DEVSIM.xyz, 1 , devSim.katom[KK]-1, 3, devSim.natom);
+    QUICKDouble RCz = LOC2(DEVSIM.xyz, 2 , devSim.katom[KK]-1, 3, devSim.natom);
     
     /*
      kPrimI, J, K and L indicates the primtive gaussian function number
@@ -1038,23 +1038,23 @@ __device__ __forceinline__ void iclass_spdf10
         int ii_start = devSim.prim_start[II];
         int jj_start = devSim.prim_start[JJ];
         
-        QUICKDouble AB = LOC2(devSim.expoSum, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
-        QUICKDouble Px = LOC2(devSim.weightedCenterX, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
-        QUICKDouble Py = LOC2(devSim.weightedCenterY, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
-        QUICKDouble Pz = LOC2(devSim.weightedCenterZ, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
+        QUICKDouble AB = LOC2(DEVSIM.expoSum, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
+        QUICKDouble Px = LOC2(DEVSIM.weightedCenterX, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
+        QUICKDouble Py = LOC2(DEVSIM.weightedCenterY, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
+        QUICKDouble Pz = LOC2(DEVSIM.weightedCenterZ, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
         
         /*
          X1 is the contracted coeffecient, which is pre-calcuated in CPU stage as well.
          cutoffprim is used to cut too small prim gaussian function when bring density matrix into consideration.
          */
-        QUICKDouble cutoffPrim = DNMax * LOC2(devSim.cutPrim, kStartI+III, kStartJ+JJJ, devSim.jbasis, devSim.jbasis);
-        QUICKDouble X1 = LOC4(devSim.Xcoeff, kStartI+III, kStartJ+JJJ, I - devSim.Qstart[II], J - devSim.Qstart[JJ], devSim.jbasis, devSim.jbasis, 2, 2);
+        QUICKDouble cutoffPrim = DNMax * LOC2(DEVSIM.cutPrim, kStartI+III, kStartJ+JJJ, devSim.jbasis, devSim.jbasis);
+        QUICKDouble X1 = LOC4(DEVSIM.Xcoeff, kStartI+III, kStartJ+JJJ, I - devSim.Qstart[II], J - devSim.Qstart[JJ], devSim.jbasis, devSim.jbasis, 2, 2);
         
         for (int j = 0; j<kPrimK*kPrimL; j++){
             int LLL = (int)j/kPrimK;
             int KKK = (int) j-kPrimK*LLL;
             
-            if (cutoffPrim * LOC2(devSim.cutPrim, kStartK+KKK, kStartL+LLL, devSim.jbasis, devSim.jbasis) > devSim.primLimit) {
+            if (cutoffPrim * LOC2(DEVSIM.cutPrim, kStartK+KKK, kStartL+LLL, devSim.jbasis, devSim.jbasis) > DEVSIM.primLimit) {
                 /*
                  CD = expo(L)+expo(K)
                  ABCD = 1/ (AB + CD) = 1 / (expo(I)+expo(J)+expo(K)+expo(L))
@@ -1072,14 +1072,14 @@ __device__ __forceinline__ void iclass_spdf10
                 int kk_start = devSim.prim_start[KK];
                 int ll_start = devSim.prim_start[LL];
                 
-                QUICKDouble CD = LOC2(devSim.expoSum, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
+                QUICKDouble CD = LOC2(DEVSIM.expoSum, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
                 
                 QUICKDouble ABCD = 1/(AB+CD);
                 
                 /*
                  X2 is the multiplication of four indices normalized coeffecient
                  */
-                QUICKDouble X2 = sqrt(ABCD) * X1 * LOC4(devSim.Xcoeff, kStartK+KKK, kStartL+LLL, K - devSim.Qstart[KK], L - devSim.Qstart[LL], devSim.jbasis, devSim.jbasis, 2, 2);
+                QUICKDouble X2 = sqrt(ABCD) * X1 * LOC4(DEVSIM.Xcoeff, kStartK+KKK, kStartL+LLL, K - devSim.Qstart[KK], L - devSim.Qstart[LL], devSim.jbasis, devSim.jbasis, 2, 2);
                 
                 /*
                  Q' is the weighting center of K and L
@@ -1101,9 +1101,9 @@ __device__ __forceinline__ void iclass_spdf10
                  T = ROU * | P - Q|
                  */
                 
-                QUICKDouble Qx = LOC2(devSim.weightedCenterX, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
-                QUICKDouble Qy = LOC2(devSim.weightedCenterY, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
-                QUICKDouble Qz = LOC2(devSim.weightedCenterZ, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
+                QUICKDouble Qx = LOC2(DEVSIM.weightedCenterX, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
+                QUICKDouble Qy = LOC2(DEVSIM.weightedCenterY, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
+                QUICKDouble Qz = LOC2(DEVSIM.weightedCenterZ, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
                 
                 //QUICKDouble T = AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz));
                 
@@ -1190,14 +1190,14 @@ __device__ __forceinline__ void iclass_spdf10
     QUICKDouble RBx, RBy, RBz;
     QUICKDouble RDx, RDy, RDz;
     
-    RBx = LOC2(devSim.xyz, 0 , devSim.katom[JJ]-1, 3, devSim.natom);
-    RBy = LOC2(devSim.xyz, 1 , devSim.katom[JJ]-1, 3, devSim.natom);
-    RBz = LOC2(devSim.xyz, 2 , devSim.katom[JJ]-1, 3, devSim.natom);
+    RBx = LOC2(DEVSIM.xyz, 0 , devSim.katom[JJ]-1, 3, devSim.natom);
+    RBy = LOC2(DEVSIM.xyz, 1 , devSim.katom[JJ]-1, 3, devSim.natom);
+    RBz = LOC2(DEVSIM.xyz, 2 , devSim.katom[JJ]-1, 3, devSim.natom);
     
     
-    RDx = LOC2(devSim.xyz, 0 , devSim.katom[LL]-1, 3, devSim.natom);
-    RDy = LOC2(devSim.xyz, 1 , devSim.katom[LL]-1, 3, devSim.natom);
-    RDz = LOC2(devSim.xyz, 2 , devSim.katom[LL]-1, 3, devSim.natom);
+    RDx = LOC2(DEVSIM.xyz, 0 , devSim.katom[LL]-1, 3, devSim.natom);
+    RDy = LOC2(DEVSIM.xyz, 1 , devSim.katom[LL]-1, 3, devSim.natom);
+    RDz = LOC2(DEVSIM.xyz, 2 , devSim.katom[LL]-1, 3, devSim.natom);
     
     int III1 = LOC2(devSim.Qsbasis, II, I, devSim.nshell, 4);
     int III2 = LOC2(devSim.Qfbasis, II, I, devSim.nshell, 4);
@@ -1274,7 +1274,7 @@ __device__ __forceinline__ void iclass_spdf10
 #ifdef int_spd
                         if (abs(Y) > 0.0e0)
 #else
-                        if (abs(Y) > devSim.integralCutoff)
+                        if (abs(Y) > DEVSIM.integralCutoff)
 #endif
                         {
 #ifdef OSHELL
@@ -1463,13 +1463,13 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
      which means they are corrosponding coorinates for shell II, JJ, KK, and LL.
      And we don't need the coordinates now, so we will not retrieve the data now.
      */
-    QUICKDouble RAx = LOC2(devSim.xyz, 0 , devSim.katom[II]-1, 3, devSim.natom);
-    QUICKDouble RAy = LOC2(devSim.xyz, 1 , devSim.katom[II]-1, 3, devSim.natom);
-    QUICKDouble RAz = LOC2(devSim.xyz, 2 , devSim.katom[II]-1, 3, devSim.natom);
+    QUICKDouble RAx = LOC2(DEVSIM.xyz, 0 , devSim.katom[II]-1, 3, devSim.natom);
+    QUICKDouble RAy = LOC2(DEVSIM.xyz, 1 , devSim.katom[II]-1, 3, devSim.natom);
+    QUICKDouble RAz = LOC2(DEVSIM.xyz, 2 , devSim.katom[II]-1, 3, devSim.natom);
     
-    QUICKDouble RCx = LOC2(devSim.xyz, 0 , devSim.katom[KK]-1, 3, devSim.natom);
-    QUICKDouble RCy = LOC2(devSim.xyz, 1 , devSim.katom[KK]-1, 3, devSim.natom);
-    QUICKDouble RCz = LOC2(devSim.xyz, 2 , devSim.katom[KK]-1, 3, devSim.natom);
+    QUICKDouble RCx = LOC2(DEVSIM.xyz, 0 , devSim.katom[KK]-1, 3, devSim.natom);
+    QUICKDouble RCy = LOC2(DEVSIM.xyz, 1 , devSim.katom[KK]-1, 3, devSim.natom);
+    QUICKDouble RCz = LOC2(DEVSIM.xyz, 2 , devSim.katom[KK]-1, 3, devSim.natom);
     
     /*
      kPrimI, J, K and L indicates the primtive gaussian function number
@@ -1524,23 +1524,23 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
         int ii_start = devSim.prim_start[II];
         int jj_start = devSim.prim_start[JJ];
         
-        QUICKDouble AB = LOC2(devSim.expoSum, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
-        QUICKDouble Px = LOC2(devSim.weightedCenterX, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
-        QUICKDouble Py = LOC2(devSim.weightedCenterY, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
-        QUICKDouble Pz = LOC2(devSim.weightedCenterZ, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
+        QUICKDouble AB = LOC2(DEVSIM.expoSum, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
+        QUICKDouble Px = LOC2(DEVSIM.weightedCenterX, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
+        QUICKDouble Py = LOC2(DEVSIM.weightedCenterY, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
+        QUICKDouble Pz = LOC2(DEVSIM.weightedCenterZ, ii_start+III, jj_start+JJJ, devSim.prim_total, devSim.prim_total);
         
         /*
          X1 is the contracted coeffecient, which is pre-calcuated in CPU stage as well.
          cutoffprim is used to cut too small prim gaussian function when bring density matrix into consideration.
          */
-        QUICKDouble cutoffPrim = DNMax * LOC2(devSim.cutPrim, kStartI+III, kStartJ+JJJ, devSim.jbasis, devSim.jbasis);
-        QUICKDouble X1 = LOC4(devSim.Xcoeff, kStartI+III, kStartJ+JJJ, I - devSim.Qstart[II], J - devSim.Qstart[JJ], devSim.jbasis, devSim.jbasis, 2, 2);
+        QUICKDouble cutoffPrim = DNMax * LOC2(DEVSIM.cutPrim, kStartI+III, kStartJ+JJJ, devSim.jbasis, devSim.jbasis);
+        QUICKDouble X1 = LOC4(DEVSIM.Xcoeff, kStartI+III, kStartJ+JJJ, I - devSim.Qstart[II], J - devSim.Qstart[JJ], devSim.jbasis, devSim.jbasis, 2, 2);
         
         for (int j = 0; j<kPrimK*kPrimL; j++){
             int LLL = (int) j/kPrimK;
             int KKK = (int) j-kPrimK*LLL;
             
-            if (cutoffPrim * LOC2(devSim.cutPrim, kStartK+KKK, kStartL+LLL, devSim.jbasis, devSim.jbasis) > devSim.primLimit) {
+            if (cutoffPrim * LOC2(DEVSIM.cutPrim, kStartK+KKK, kStartL+LLL, devSim.jbasis, devSim.jbasis) > DEVSIM.primLimit) {
                 /*
                  CD = expo(L)+expo(K)
                  ABCD = 1/ (AB + CD) = 1 / (expo(I)+expo(J)+expo(K)+expo(L))
@@ -1559,14 +1559,14 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
                 int kk_start = devSim.prim_start[KK];
                 int ll_start = devSim.prim_start[LL];
                 
-                QUICKDouble CD = LOC2(devSim.expoSum, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
+                QUICKDouble CD = LOC2(DEVSIM.expoSum, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
                 
                 QUICKDouble ABCD = 1/(AB+CD);
                 
                 /*
                  X2 is the multiplication of four indices normalized coeffecient
                  */
-                QUICKDouble X2 = sqrt(ABCD) * X1 * LOC4(devSim.Xcoeff, kStartK+KKK, kStartL+LLL, K - devSim.Qstart[KK], L - devSim.Qstart[LL], devSim.jbasis, devSim.jbasis, 2, 2);
+                QUICKDouble X2 = sqrt(ABCD) * X1 * LOC4(DEVSIM.Xcoeff, kStartK+KKK, kStartL+LLL, K - devSim.Qstart[KK], L - devSim.Qstart[LL], devSim.jbasis, devSim.jbasis, 2, 2);
                 
                 /*
                  Q' is the weighting center of K and L
@@ -1588,9 +1588,9 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
                  T = ROU * | P - Q|
                  */
                 
-                QUICKDouble Qx = LOC2(devSim.weightedCenterX, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
-                QUICKDouble Qy = LOC2(devSim.weightedCenterY, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
-                QUICKDouble Qz = LOC2(devSim.weightedCenterZ, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
+                QUICKDouble Qx = LOC2(DEVSIM.weightedCenterX, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
+                QUICKDouble Qy = LOC2(DEVSIM.weightedCenterY, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
+                QUICKDouble Qz = LOC2(DEVSIM.weightedCenterZ, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
                 
                 QUICKDouble T = AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz));
                 
@@ -1677,14 +1677,14 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
     QUICKDouble RBx, RBy, RBz;
     QUICKDouble RDx, RDy, RDz;
     
-    RBx = LOC2(devSim.xyz, 0 , devSim.katom[JJ]-1, 3, devSim.natom);
-    RBy = LOC2(devSim.xyz, 1 , devSim.katom[JJ]-1, 3, devSim.natom);
-    RBz = LOC2(devSim.xyz, 2 , devSim.katom[JJ]-1, 3, devSim.natom);
+    RBx = LOC2(DEVSIM.xyz, 0 , devSim.katom[JJ]-1, 3, devSim.natom);
+    RBy = LOC2(DEVSIM.xyz, 1 , devSim.katom[JJ]-1, 3, devSim.natom);
+    RBz = LOC2(DEVSIM.xyz, 2 , devSim.katom[JJ]-1, 3, devSim.natom);
     
     
-    RDx = LOC2(devSim.xyz, 0 , devSim.katom[LL]-1, 3, devSim.natom);
-    RDy = LOC2(devSim.xyz, 1 , devSim.katom[LL]-1, 3, devSim.natom);
-    RDz = LOC2(devSim.xyz, 2 , devSim.katom[LL]-1, 3, devSim.natom);
+    RDx = LOC2(DEVSIM.xyz, 0 , devSim.katom[LL]-1, 3, devSim.natom);
+    RDy = LOC2(DEVSIM.xyz, 1 , devSim.katom[LL]-1, 3, devSim.natom);
+    RDz = LOC2(DEVSIM.xyz, 2 , devSim.katom[LL]-1, 3, devSim.natom);
     
     int III1 = LOC2(devSim.Qsbasis, II, I, devSim.nshell, 4);
     int III2 = LOC2(devSim.Qfbasis, II, I, devSim.nshell, 4);
