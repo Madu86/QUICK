@@ -29,11 +29,18 @@ static __constant__ gpu_simulation_type devSim;
 static __constant__ int devTrans[TRANSDIM*TRANSDIM*TRANSDIM];
 static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 
+#define DEVSIM devSim
 
 /* include single precision code paths, MIXED_PRECISION flag is a general flag to specify whether to compile
  a single precision version. SINGLE_PRECISION flag allows compiling flat specific code paths from header files.*/  
 
 #ifdef MIXED_PRECISION // start to include single precision code paths
+
+static __constant__ gpu_sp_simulation_type devSimSP;
+
+#undef DEVSIM
+#define DEVSIM devSimSP
+
 #define SINGLE_PRECISION
 #undef QUICKDouble
 #define QUICKDouble float
@@ -462,6 +469,8 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef SINGLE_PRECISION
 #undef QUICKDouble
 #define QUICKDouble double
+#undef DEVSIM
+#define DEVSIM devSim
 
 #endif // end including single precision code paths
 
@@ -896,8 +905,14 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
  */
 void upload_sim_to_constant(_gpu_type gpu){
     cudaError_t status;
-	status = cudaMemcpyToSymbol(devSim, &gpu->gpu_sim, sizeof(gpu_simulation_type));
-	PRINTERROR(status, " cudaMemcpyToSymbol, sim copy to constants failed")
+    status = cudaMemcpyToSymbol(devSim, &gpu->gpu_sim, sizeof(gpu_simulation_type));
+    PRINTERROR(status, " cudaMemcpyToSymbol, sim copy to constants failed")
+
+#ifdef MIXED_PRECISION
+    status = cudaMemcpyToSymbol(devSimSP, &gpu->gpu_sp_sim, sizeof(gpu_sp_simulation_type));
+    PRINTERROR(status, " cudaMemcpyToSymbol, sim copy to constants failed")
+#endif
+
 }
 
 
@@ -968,12 +983,82 @@ void get2e(_gpu_type gpu)
     }
 #endif 
 
+#ifdef MIXED_PRECISION
+
+    QUICK_SAFE_CALL((sp_get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+
+#ifdef CUDA_SPDF
+    if (gpu->maxL >= 3) {
+        // Part f-1
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-2
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf2<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-3
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf3<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-4
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf4<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-5
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf5<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-6
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf6<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-7
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf7<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-8
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf8<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-9
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf9<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-10
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf10<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+    }
+#endif
+
+#endif
+
 //    get1e_();
 
     cudaDeviceSynchronize();
 //    nvtxRangePop();
 
 }
+
+
+/*void get2e_sp(_gpu_type gpu){
+
+#ifdef MIXED_PRECISION
+
+    QUICK_SAFE_CALL((sp_get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+
+#ifdef CUDA_SPDF
+    if (gpu->maxL >= 3) {
+        // Part f-1
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-2
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf2<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-3
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf3<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-4
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf4<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-5
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf5<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-6
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf6<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-7
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf7<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-8
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf8<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-9
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf9<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-10
+        QUICK_SAFE_CALL((sp_get2e_kernel_spdf10<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+    }
+#endif
+
+    cudaDeviceSynchronize();
+
+#endif
+
+}*/
+
 
 // interface to call Kernel subroutine for uscf
 void get_oshell_eri(_gpu_type gpu)
@@ -1006,6 +1091,37 @@ void get_oshell_eri(_gpu_type gpu)
         // Part f-10
         QUICK_SAFE_CALL((get_oshell_eri_kernel_spdf10<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
     }
+#endif
+
+#ifdef MIXED_PRECISION
+
+    QUICK_SAFE_CALL((get_oshell_sp_eri_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+
+#ifdef CUDA_SPDF
+    if (gpu->maxL >= 3) {
+        // Part f-1
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-2
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf2<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-3
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf3<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-4
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf4<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-5
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf5<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-6
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf6<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-7
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf7<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-8
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf8<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-9
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf9<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+        // Part f-10
+        QUICK_SAFE_CALL((get_oshell_sp_eri_kernel_spdf10<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+    }
+#endif
+
 #endif
 
 //    cudaDeviceSynchronize();
@@ -1117,7 +1233,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) getAddInt_kernel(int bufferSize
 		    }
                     */
 
-                    addint(devSim.oULL, a[k].value, III, JJJ, KKK, LLL, devSim.hyb_coeff, devSim.dense, devSim.nbasis);
+                    addint(devSim.oULL, a[k].value, III, JJJ, KKK, LLL, devSim.hyb_coeff, devSim.nbasis);
                 }
             }
             j = 0;
