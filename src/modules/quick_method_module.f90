@@ -741,7 +741,7 @@ endif
                                            ! smallest integral cutoff, used in conventional SCF
             self%maxIntegralCutoff = 1.0d-12
                                            ! smallest integral cutoff, used in conventional SCF
-            self%mpIntegralCutoff = 1.0d-1 ! mixed precision integral cutoff
+            self%mpIntegralCutoff = 1.0d8 ! mixed precision integral cutoff
             self%primLimit      = 1.0d-7   ! prime cutoff
             self%gradCutoff     = 1.0d-7   ! gradient cutoff
             self%DMCutoff       = 1.0d-10  ! density matrix cutoff
