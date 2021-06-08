@@ -1233,7 +1233,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) getAddInt_kernel(int bufferSize
 		    }
                     */
 
-                    addint(devSim.oULL, a[k].value, III, JJJ, KKK, LLL, devSim.hyb_coeff, devSim.nbasis);
+                    addint(a[k].value, III, JJJ, KKK, LLL, devSim.hyb_coeff, devSim.nbasis);
                 }
             }
             j = 0;
