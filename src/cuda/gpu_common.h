@@ -115,6 +115,9 @@ cudaEventDestroy(end);
 
 
 // Atomic add macro
+
+#define CUDAADD(address, val) atomicAdd(&(address),(val))
+
 #ifdef TEST
 #define QUICKADD(address, val) address += (val)
 #define QUICKSUB(address, val) address -= (val)
