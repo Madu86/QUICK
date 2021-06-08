@@ -41,6 +41,7 @@ extern "C" void gpu_get_cshell_eri_(QUICKDouble* o)
 
     PRINTDEBUG("COMPLETE KERNEL")
 
+#ifdef LEGACY_ATOMIC_ADD
     gpu -> gpu_calculated -> oULL -> Download();
     cudaMemsetAsync(gpu -> gpu_calculated -> oULL -> _devData, 0, sizeof(QUICKULL)*gpu->nbasis*gpu->nbasis);
 
@@ -60,8 +61,68 @@ extern "C" void gpu_get_cshell_eri_(QUICKDouble* o)
             LOC2(gpu->gpu_calculated->o->_hostData,j,i,gpu->nbasis, gpu->nbasis) = (QUICKDouble)valDB*ONEOVEROSCALE;
         }
     }
+#else
+    gpu -> gpu_calculated -> o -> Download();
+    cudaMemsetAsync(gpu -> gpu_calculated -> o -> _devData, 0, sizeof(QUICKDouble)*gpu->nbasis*gpu->nbasis);
+
+    for (int i = 0; i< gpu->nbasis; i++) {
+        for (int j = i; j< gpu->nbasis; j++) {
+            LOC2(gpu->gpu_calculated->o->_hostData,i,j,gpu->nbasis, gpu->nbasis) = LOC2(gpu->gpu_calculated->o->_hostData,j,i,gpu->nbasis, gpu->nbasis);
+        }
+    }
+
+#ifdef MIXED_PRECISION
+    gpu -> gpu_calculated -> o -> DownloadFloat();
+    cudaMemsetAsync(gpu -> gpu_calculated -> o -> _devDataFlt, 0, sizeof(float)*gpu->nbasis*gpu->nbasis);
+
+    for (int i = 0; i< gpu->nbasis; i++) {
+        for (int j = i; j< gpu->nbasis; j++) {
+            LOC2(gpu->gpu_calculated->o->_hostDataFlt,i,j,gpu->nbasis, gpu->nbasis) = LOC2(gpu->gpu_calculated->o->_hostDataFlt,j,i,gpu->nbasis, gpu->nbasis);
+        }
+    }
+
+    gpu -> gpu_calculated -> o -> DownloadFloatSum(o);
+#endif
+
+#endif
+
+// added for testing SP
+
+/*    gpu -> gpu_calculated -> o    -> DownloadSum(o);
+
+    for (int i = 0; i< gpu->nbasis; i++) {
+      for (int j = i; j< gpu->nbasis; j++) {
+        printf(" O after DP: %d %d %.10e \n", i, j, gpu -> gpu_calculated -> o -> _hostData[j*gpu->nbasis+i]);
+      }
+    }
+
+    get2e_sp(gpu);
+
+    gpu -> gpu_calculated -> oULL -> Download();
+    cudaMemsetAsync(gpu -> gpu_calculated -> oULL -> _devData, 0, sizeof(QUICKULL)*gpu->nbasis*gpu->nbasis);
+
+    for (int i = 0; i< gpu->nbasis; i++) {
+        for (int j = i; j< gpu->nbasis; j++) {
+            QUICKULL valULL = LOC2(gpu->gpu_calculated->oULL->_hostData, j, i, gpu->nbasis, gpu->nbasis);
+            QUICKDouble valDB;
+
+            if (valULL >= 0x8000000000000000ull) {
+                valDB  = -(QUICKDouble)(valULL ^ 0xffffffffffffffffull);
+            }
+            else
+            {
+                valDB  = (QUICKDouble) valULL;
+            }
+            LOC2(gpu->gpu_calculated->o->_hostData,i,j,gpu->nbasis, gpu->nbasis) = (QUICKDouble)valDB*ONEOVEROSCALE;
+            LOC2(gpu->gpu_calculated->o->_hostData,j,i,gpu->nbasis, gpu->nbasis) = (QUICKDouble)valDB*ONEOVEROSCALE;
+        }
+    }
+*/
+// end testing sp
 
 #ifdef OSHELL
+
+#ifdef LEGACY_ATOMIC_ADD
     gpu -> gpu_calculated -> obULL -> Download();
     cudaMemsetAsync(gpu -> gpu_calculated -> obULL -> _devData, 0, sizeof(QUICKULL)*gpu->nbasis*gpu->nbasis);
 
@@ -81,6 +142,17 @@ extern "C" void gpu_get_cshell_eri_(QUICKDouble* o)
             LOC2(gpu->gpu_calculated->ob->_hostData,j,i,gpu->nbasis, gpu->nbasis) = (QUICKDouble)valDB*ONEOVEROSCALE;
         }
     }
+#else
+    gpu -> gpu_calculated -> ob -> Download();
+    cudaMemsetAsync(gpu -> gpu_calculated -> ob -> _devData, 0, sizeof(QUICKDouble)*gpu->nbasis*gpu->nbasis);
+
+#ifdef MIXED_PRECISION
+    gpu -> gpu_calculated -> ob -> DownloadFloat();
+    cudaMemsetAsync(gpu -> gpu_calculated -> ob -> _devDataFlt, 0, sizeof(float)*gpu->nbasis*gpu->nbasis);
+    gpu -> gpu_calculated -> ob -> DownloadFloatSum(ob);
+#endif
+
+#endif
 #endif
 
 #ifdef DEBUG
@@ -91,6 +163,17 @@ extern "C" void gpu_get_cshell_eri_(QUICKDouble* o)
 #endif
 
     gpu -> gpu_calculated -> o    -> DownloadSum(o);
+
+
+// added for testing SP
+/*    printf("\n");
+    for (int i = 0; i< gpu->nbasis; i++) {
+      for (int j = i; j< gpu->nbasis; j++) {
+        printf(" O after SP: %d %d %.10e \n", i, j, gpu -> gpu_calculated -> o -> _hostDataFlt[j*gpu->nbasis+i]);
+        
+      }
+    }*/
+// end testing sp
 
 #ifdef OSHELL
     gpu -> gpu_calculated -> ob   -> DownloadSum(ob);
@@ -111,11 +194,18 @@ extern "C" void gpu_get_cshell_eri_(QUICKDouble* o)
     if(gpu -> gpu_sim.method == HF){
       delete gpu->gpu_calculated->o;
       delete gpu->gpu_calculated->dense;
+
+#ifdef LEGACY_ATOMIC_ADD
       delete gpu->gpu_calculated->oULL;
+#endif
+
 #ifdef OSHELL
       delete gpu->gpu_calculated->ob;
       delete gpu->gpu_calculated->denseb;
+
+#ifdef LEGACY_ATOMIC_ADD
       delete gpu->gpu_calculated->obULL;
+#endif
 #endif
 
     }
