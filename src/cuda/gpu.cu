@@ -1162,9 +1162,13 @@ extern "C" void gpu_upload_calculated_(QUICKDouble* o, QUICKDouble* co, QUICKDou
     PRINTDEBUG("BEGIN TO UPLOAD O MATRIX")
     
     gpu -> gpu_calculated -> o        =   new cuda_buffer_type<QUICKDouble>(gpu->nbasis, gpu->nbasis);
+
+#ifdef LEGACY_ATOMIC_ADD 
     gpu -> gpu_calculated -> o        ->  DeleteGPU();
-    gpu -> gpu_calculated -> dense    =   new cuda_buffer_type<QUICKDouble>(dense,  gpu->nbasis, gpu->nbasis);
     gpu -> gpu_calculated -> oULL     =   new cuda_buffer_type<QUICKULL>(gpu->nbasis, gpu->nbasis);
+#endif
+
+    gpu -> gpu_calculated -> dense    =   new cuda_buffer_type<QUICKDouble>(dense,  gpu->nbasis, gpu->nbasis);
     
     
     /*
@@ -1188,21 +1192,28 @@ extern "C" void gpu_upload_calculated_(QUICKDouble* o, QUICKDouble* co, QUICKDou
     }
     */
     
-    //    gpu -> gpu_calculated -> o        -> Upload();
     gpu -> gpu_calculated -> dense    -> Upload();
+    gpu -> gpu_sim.dense              =  gpu -> gpu_calculated -> dense -> _devData;
+
+#ifdef LEGACY_ATOMIC_ADD
     gpu -> gpu_calculated -> oULL     -> Upload();
-    
-    //    gpu -> gpu_sim.o                 =  gpu -> gpu_calculated -> o -> _devData;
-    gpu -> gpu_sim.dense             =  gpu -> gpu_calculated -> dense -> _devData;
     gpu -> gpu_sim.oULL              =  gpu -> gpu_calculated -> oULL -> _devData;
+#else
+    gpu -> gpu_calculated -> o        -> Upload();
+    gpu -> gpu_sim.o              =  gpu -> gpu_calculated -> o -> _devData;
+#endif
     
 #ifdef MIXED_PRECISION
     /* To minimize duplicate data uploading, we will simply cast dense values and store in densef
        using a device kernel. */
-printf("uploading dense float \n");
     gpu -> gpu_calculated -> dense    -> UploadFloat();
     gpu -> gpu_sp_sim.dense = gpu -> gpu_calculated -> dense -> _devDataFlt;  
-printf("uploading dense float done\n");
+
+#ifndef LEGACY_ATOMIC_ADD
+    // if legacy atomic add is not used, we will have O in float type too. 
+    gpu -> gpu_calculated -> o -> UploadFloat();
+    gpu -> gpu_sp_sim.o   = gpu -> gpu_calculated -> o -> _devDataFlt;
+#endif
 #endif
 
 #ifdef DEBUG
@@ -1234,10 +1245,14 @@ extern "C" void gpu_upload_calculated_beta_(QUICKDouble* ob, QUICKDouble* denseb
 
     PRINTDEBUG("BEGIN TO UPLOAD BETA O MATRIX")
 
+
     gpu -> gpu_calculated -> ob        =   new cuda_buffer_type<QUICKDouble>(gpu->nbasis, gpu->nbasis);
+
+#ifdef LEGACY_ATOMIC_ADD
     gpu -> gpu_calculated -> ob        ->  DeleteGPU();
-    gpu -> gpu_calculated -> denseb    =   new cuda_buffer_type<QUICKDouble>(denseb,  gpu->nbasis, gpu->nbasis);
     gpu -> gpu_calculated -> obULL     =   new cuda_buffer_type<QUICKULL>(gpu->nbasis, gpu->nbasis);
+#endif
+
 
     /*
      obULL is the unsigned long long int type of Ob matrix. The reason to do so is because
@@ -1257,19 +1272,30 @@ extern "C" void gpu_upload_calculated_beta_(QUICKDouble* ob, QUICKDouble* denseb
             LOC2( gpu->gpu_calculated->obULL->_hostData, i, j, gpu->nbasis, gpu->nbasis) = valUII;
         }
     }*/
-    //    gpu -> gpu_calculated -> o        -> Upload();
-    gpu -> gpu_calculated -> denseb    -> Upload();
-    gpu -> gpu_calculated -> obULL     -> Upload();
 
-    //    gpu -> gpu_sim.o                 =  gpu -> gpu_calculated -> o -> _devData;
+    gpu -> gpu_calculated -> denseb    =   new cuda_buffer_type<QUICKDouble>(denseb,  gpu->nbasis, gpu->nbasis);    
+    gpu -> gpu_calculated -> denseb    -> Upload();
     gpu -> gpu_sim.denseb             =  gpu -> gpu_calculated -> denseb -> _devData;
+
+#ifdef LEGACY_ATOMIC_ADD
+    gpu -> gpu_calculated -> obULL     -> Upload();
     gpu -> gpu_sim.obULL              =  gpu -> gpu_calculated -> obULL -> _devData;
+#else
+    gpu -> gpu_calculated -> ob        -> Upload();
+    gpu -> gpu_sim.ob              =  gpu -> gpu_calculated -> ob -> _devData;
+#endif
+
 
 #ifdef MIXED_PRECISION
     /* To minimize duplicate data uploading, we will simply cast dense values and store in densef
        using a device kernel. */
     gpu -> gpu_calculated -> denseb    -> UploadFloat();
     gpu -> gpu_sp_sim.denseb = gpu -> gpu_calculated -> denseb -> _devDataFlt;
+#ifndef LEGACY_ATOMIC_ADD
+    // if legacy atomic add is not used, we will have O in float type too. 
+    gpu -> gpu_calculated -> ob -> UploadFloat();
+    gpu -> gpu_sp_sim.ob   = gpu -> gpu_calculated -> ob -> _devDataFlt;
+#endif
 #endif
 
 #ifdef DEBUG
