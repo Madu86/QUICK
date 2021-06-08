@@ -246,9 +246,9 @@ __device__ void iclass_oshell_grad_spdf7(int I, int J, int K, int L, unsigned in
 __device__ void iclass_oshell_grad_spdf8(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
 
 
-__device__ __forceinline__ void addint_oshell(QUICKULL* oULL, QUICKULL* obULL,QUICKDouble Y, int III, int JJJ, int KKK, int LLL,QUICKDouble hybrid_coeff, int nbasis);
+__device__ __forceinline__ void addint_oshell(QUICKDouble Y, int III, int JJJ, int KKK, int LLL,QUICKDouble hybrid_coeff, int nbasis);
 
-__device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis);
+__device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis);
 
 __device__ __forceinline__ QUICKDouble quick_dsqr(QUICKDouble a);
 
@@ -322,8 +322,8 @@ __device__ __forceinline__ void hrrwholegrad2_2(QUICKDouble* Yaax, QUICKDouble* 
 
 
 //__device__ void gpu_shell(unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL);
-__device__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, int JJJ, int KKK, int LLL,QUICKDouble hybrid_coeff, int nbasis);
-__device__ __forceinline__ void addint_oshell(QUICKULL* oULL, QUICKULL* obULL,QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis);
+__device__ void addint(QUICKDouble Y, int III, int JJJ, int KKK, int LLL,QUICKDouble hybrid_coeff, int nbasis);
+__device__ __forceinline__ void addint_oshell(QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis);
 __device__ void FmT(int MaxM, QUICKDouble X, QUICKDouble* vals);
 
 __device__ QUICKDouble hrrwhole(int I, int J, int K, int L, \
