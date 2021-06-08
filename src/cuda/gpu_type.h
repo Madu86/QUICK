@@ -366,6 +366,9 @@ struct gpu_sp_simulation_type{
     float                     DMCutoff;
     float                     gradCutoff;
 
+    // operator
+    float*                    o;
+    float*                    ob;
 };
 
 struct gpu_basis_type {
@@ -524,7 +527,8 @@ struct cuda_buffer_type {
     T*              _devData;    // data on device (GPU)
     T*              _f90Data;    // if constructed from f90 array, it is the pointer
 
-    float*          _devDataFlt; // data on device (GPU) in float type, only required for MP   
+    float*          _devDataFlt; // data on device (GPU) in float type, allocate only if upload is invoked in MP version  
+    float*          _hostDataFlt; // data on host in float type, allocate only if download is invoked in MP version
     
     // constructor
     cuda_buffer_type(int length);
@@ -552,9 +556,11 @@ struct cuda_buffer_type {
     void UploadAsync();
     void UploadFloat();
     void Download();
+    void DownloadFloat();
     void Download(T* f90Data);
     void DownloadSum(T* f90Data);
-    
+    void DownloadFloatSum(T* f90Data);    
+ 
     void DeleteCPU();
     void DeleteGPU();
 };
@@ -562,63 +568,63 @@ struct cuda_buffer_type {
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(int length) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(int length, bool bPinned) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(bPinned)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(bPinned)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(unsigned int length) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(int length, int length2) :
-_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
+_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(unsigned int length, unsigned int length2) :
-_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
+_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(NULL), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(T* f90data, unsigned int length, unsigned int length2) :
-_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
+_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(T* f90data, int length, int length2) :
-_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
+_length(length), _length2(length2), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(T* f90data, unsigned int length) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
 {
     Allocate();
 }
 
 template <typename T>
 cuda_buffer_type<T> :: cuda_buffer_type(T* f90data, int length) :
-_length(length), _length2(1), _hostData(NULL), _devData(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
+_length(length), _length2(1), _hostData(NULL), _devData(NULL), _hostDataFlt(NULL), _devDataFlt(NULL), _f90Data(f90data), _bPinned(false)
 {
     Allocate();
 }
@@ -782,6 +788,7 @@ void cuda_buffer_type<T> :: Deallocate()
     
 #endif
 
+    // delete float device data
     if (_devDataFlt != NULL) {
         cudaFree(_devDataFlt);
         _devDataFlt = NULL;
@@ -790,6 +797,19 @@ void cuda_buffer_type<T> :: Deallocate()
 
         PRINTMEM("GPU--",gpu->totalGPUMemory);
         PRINTMEM("CPU  ",gpu->totalCPUMemory);
+
+#endif
+    }
+
+    // delete float hoat data
+    if (_hostDataFlt != NULL) {
+        delete [] _hostDataFlt;
+        _hostDataFlt = NULL;
+#ifdef DEBUG
+        gpu->totalCPUMemory -= _length*_length2*sizeof(float);
+
+        PRINTMEM("GPU  ",gpu->totalGPUMemory);
+        PRINTMEM("CPU--",gpu->totalCPUMemory);
 
 #endif
     }
@@ -864,6 +884,26 @@ void cuda_buffer_type<T> :: Download()
 }
 
 template <typename T>
+void cuda_buffer_type<T> :: DownloadFloat()
+{
+
+    PRINTDEBUG(">>BEGIN TO DOWNLOAD TEMPLATE")
+
+    //Allocate CPU memory
+    _hostDataFlt = new float[_length*_length2];
+
+#ifdef DEBUG
+        gpu->totalCPUMemory -= _length*_length2*sizeof(float);
+        PRINTMEM("CPU++  ",gpu->totalCPUMemory);
+#endif
+
+    cudaError_t status;
+    status = cudaMemcpy(_hostDataFlt,_devDataFlt,_length*_length2*sizeof(float),cudaMemcpyDeviceToHost);
+    PRINTERROR(status, " cudaMemcpy cuda_buffer_type :: Download failed!");
+    PRINTDEBUG("<<FINISH DOWNLOADING TEMPLATE")
+}
+
+template <typename T>
 void cuda_buffer_type<T> :: Download(T* f90Data)
 {
     PRINTDEBUG(">>BEGIN TO DOWNLOAD TEMPLATE TO FORTRAN ARRAY")
@@ -894,13 +934,27 @@ void cuda_buffer_type<T> :: DownloadSum(T* f90Data)
 }
 
 template <typename T>
+void cuda_buffer_type<T> :: DownloadFloatSum(T* f90Data)
+{
+    PRINTDEBUG(">>BEGIN TO DOWNLOAD TEMPLATE TO FORTRAN ARRAY")
+    size_t index_c = 0;
+    size_t index_f;
+    for (size_t i = 0; i < _length; i++) {
+        for (size_t j = 0; j <_length2; j++) {
+            index_f = j*_length+i;
+            f90Data[index_f] += (T) _hostDataFlt[index_c++];
+        }
+    }
+    PRINTDEBUG("<<FINISH DOWNLOADING TEMPLATE TO FORTRAN ARRAY")
+}
+
+template <typename T>
 void cuda_buffer_type<T> :: DeleteCPU()
 {
     
     PRINTDEBUG(">>BEGIN TO DELETE CPU")
     
     if (_hostData != NULL) {
-//        free(_hostData);
         delete [] _hostData;
         _hostData = NULL;
 #ifdef DEBUG
@@ -911,6 +965,20 @@ void cuda_buffer_type<T> :: DeleteCPU()
         
 #endif
     }
+
+    // delete float host data
+    if (_hostDataFlt != NULL) {
+        delete [] _hostDataFlt;
+        _hostDataFlt = NULL;
+#ifdef DEBUG
+        gpu->totalCPUMemory -= _length*_length2*sizeof(float);
+
+        PRINTMEM("GPU  ",gpu->totalGPUMemory);
+        PRINTMEM("CPU--",gpu->totalCPUMemory);
+
+#endif
+    }
+
     PRINTDEBUG("<<FINSH DELETE CPU")
 }
 
@@ -932,6 +1000,7 @@ void cuda_buffer_type<T> :: DeleteGPU()
 #endif
     }
 
+    // delete float device data
     if (_devDataFlt != NULL) {
         cudaFree(_devDataFlt);
         _devDataFlt = NULL;
