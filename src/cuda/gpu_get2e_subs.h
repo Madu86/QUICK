@@ -229,7 +229,12 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
     // jshell and jshell2 defines the regions in i+j and k+l axes respectively.    
     // sqrQshell= Qshell x Qshell; where Qshell is the number of sorted shells (see gpu_upload_basis_ in gpu.cu)
     // for details on sorting. 
- 
+
+#ifdef SINGLE_PRECISION
+#undef QUICKULL
+#define QUICKULL unsigned int 
+#endif
+
 #ifdef int_spd
 /*
  Here we walk through full cutoff matrix.
@@ -466,6 +471,11 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 
 #endif
 
+#ifdef SINGLE_PRECISION
+#undef QUICKULL
+#define QUICKULL unsigned long long
+#endif
+
 #ifdef CUDA_MPIV
         if(devSim.mpi_bcompute[a] > 0){
 #endif 
@@ -488,9 +498,9 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
             
             
             int nshell = devSim.nshell;
-            QUICKDouble DNMax = MAX(MAX(4.0*LOC2(devSim.cutMatrix, ii, jj, nshell, nshell), 4.0*LOC2(devSim.cutMatrix, kk, ll, nshell, nshell)),
-                                    MAX(MAX(LOC2(devSim.cutMatrix, ii, ll, nshell, nshell),     LOC2(devSim.cutMatrix, ii, kk, nshell, nshell)),
-                                        MAX(LOC2(devSim.cutMatrix, jj, kk, nshell, nshell),     LOC2(devSim.cutMatrix, jj, ll, nshell, nshell))));
+            QUICKDouble DNMax = MAX(MAX(4.0*LOC2(DEVSIM.cutMatrix, ii, jj, nshell, nshell), 4.0*LOC2(DEVSIM.cutMatrix, kk, ll, nshell, nshell)),
+                                    MAX(MAX(LOC2(DEVSIM.cutMatrix, ii, ll, nshell, nshell),     LOC2(DEVSIM.cutMatrix, ii, kk, nshell, nshell)),
+                                        MAX(LOC2(DEVSIM.cutMatrix, jj, kk, nshell, nshell),     LOC2(DEVSIM.cutMatrix, jj, ll, nshell, nshell))));
             
             if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell))> devSim.integralCutoff && \
                 (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) > devSim.integralCutoff) {
@@ -1278,9 +1288,9 @@ __device__ __forceinline__ void iclass_spdf10
 #endif
                         {
 #ifdef OSHELL
-                            addint_oshell(devSim.oULL,devSim.obULL, Y, III, JJJ, KKK, LLL, (QUICKDouble) devSim.hyb_coeff, devSim.nbasis);
+                            addint_oshell(Y, III, JJJ, KKK, LLL, (QUICKDouble) devSim.hyb_coeff, devSim.nbasis);
 #else
-                            addint(devSim.oULL, Y, III, JJJ, KKK, LLL, (QUICKDouble) devSim.hyb_coeff, devSim.nbasis);
+                            addint(Y, III, JJJ, KKK, LLL, (QUICKDouble) devSim.hyb_coeff, devSim.nbasis);
 #endif
                         }
                         
@@ -1748,9 +1758,9 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
 
 
 #ifdef OSHELL
-__device__ __forceinline__ void addint_oshell(QUICKULL* oULL, QUICKULL* obULL,QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis)
+__device__ __forceinline__ void addint_oshell(QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis)
 #else
-__device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis)
+__device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK, int LLL, QUICKDouble hybrid_coeff, int nbasis)
 #endif
 {
 
@@ -1778,8 +1788,8 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
     QUICKDouble val1d = _tmp*DENSELK*Y;
     QUICKULL val1 = (QUICKULL) (fabs(val1d*OSCALE) + (QUICKDouble)0.5);
     if ( val1d < (QUICKDouble)0.0) val1 = 0ull - val1;
-    QUICKADD(LOC2(oULL, JJJ-1, III-1, nbasis, nbasis), val1);
-    QUICKADD(LOC2(obULL, JJJ-1, III-1, nbasis, nbasis), val1);
+    QUICKADD(LOC2(devSim.oULL, JJJ-1, III-1, nbasis, nbasis), val1);
+    QUICKADD(LOC2(devSim.obULL, JJJ-1, III-1, nbasis, nbasis), val1);
 
     // ATOMIC ADD VALUE 2
     if ((LLL != JJJ) || (III!=KKK)) {
@@ -1791,8 +1801,8 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
         QUICKDouble val2d = _tmp*DENSEJI*Y;
         QUICKULL val2 = (QUICKULL) (fabs(val2d*OSCALE) + (QUICKDouble)0.5);
         if ( val2d < (QUICKDouble)0.0) val2 = 0ull - val2;
-        QUICKADD(LOC2(oULL, LLL-1, KKK-1, nbasis, nbasis), val2);
-        QUICKADD(LOC2(obULL, LLL-1, KKK-1, nbasis, nbasis), val2);
+        QUICKADD(LOC2(devSim.oULL, LLL-1, KKK-1, nbasis, nbasis), val2);
+        QUICKADD(LOC2(devSim.obULL, LLL-1, KKK-1, nbasis, nbasis), val2);
     }
 
     // ATOMIC ADD VALUE 3
@@ -1803,7 +1813,7 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
         val3a = (QUICKULL) (fabs(2*val3da*OSCALE) + (QUICKDouble)0.5);
     }
     if ( DENSELJA*Y < (QUICKDouble)0.0) val3a = 0ull - val3a;
-    QUICKADD(LOC2(oULL, KKK-1, III-1, nbasis, nbasis), 0ull-val3a);
+    QUICKADD(LOC2(devSim.oULL, KKK-1, III-1, nbasis, nbasis), 0ull-val3a);
 
 
     QUICKDouble val3db = hybrid_coeff*DENSELJB*Y;
@@ -1813,7 +1823,7 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
         val3b = (QUICKULL) (fabs(2*val3db*OSCALE) + (QUICKDouble)0.5);
     }
     if ( DENSELJB*Y < (QUICKDouble)0.0) val3b = 0ull - val3b;
-    QUICKADD(LOC2(obULL, KKK-1, III-1, nbasis, nbasis), 0ull-val3b);
+    QUICKADD(LOC2(devSim.obULL, KKK-1, III-1, nbasis, nbasis), 0ull-val3b);
 
     // ATOMIC ADD VALUE 4
     if (KKK != LLL) {
@@ -1821,7 +1831,7 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
 
         QUICKULL val4a = (QUICKULL) (fabs(val4da*OSCALE) + (QUICKDouble)0.5);
         if ( val4da < (QUICKDouble)0.0) val4a = 0ull - val4a;
-        QUICKADD(LOC2(oULL, LLL-1, III-1, nbasis, nbasis), 0ull-val4a);
+        QUICKADD(LOC2(devSim.oULL, LLL-1, III-1, nbasis, nbasis), 0ull-val4a);
     }
 
 
@@ -1830,7 +1840,7 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
 
         QUICKULL val4b = (QUICKULL) (fabs(val4db*OSCALE) + (QUICKDouble)0.5);
         if ( val4db < (QUICKDouble)0.0) val4b = 0ull - val4b;
-        QUICKADD(LOC2(obULL, LLL-1, III-1, nbasis, nbasis), 0ull-val4b);
+        QUICKADD(LOC2(devSim.obULL, LLL-1, III-1, nbasis, nbasis), 0ull-val4b);
     }
 
     // ATOMIC ADD VALUE 5
@@ -1840,11 +1850,11 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
     if ( val5da < (QUICKDouble)0.0) val5a = 0ull - val5a;
 
     if ((III != JJJ && III<KKK) || ((III == JJJ) && (III == KKK) && (III < LLL)) || ((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
-        QUICKADD(LOC2(oULL, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0ull-val5a);
+        QUICKADD(LOC2(devSim.oULL, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0ull-val5a);
     }
     // ATOMIC ADD VALUE 5 - 2
     if ( III != JJJ && JJJ == KKK) {
-        QUICKADD(LOC2(oULL, JJJ-1, KKK-1, nbasis, nbasis), 0ull-val5a);
+        QUICKADD(LOC2(devSim.oULL, JJJ-1, KKK-1, nbasis, nbasis), 0ull-val5a);
     }
 
 
@@ -1854,11 +1864,11 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
     if ( val5db < (QUICKDouble)0.0) val5b = 0ull - val5b;
 
     if ((III != JJJ && III<KKK) || ((III == JJJ) && (III == KKK) && (III < LLL)) || ((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
-        QUICKADD(LOC2(obULL, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0ull-val5b);
+        QUICKADD(LOC2(devSim.obULL, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0ull-val5b);
     }
     // ATOMIC ADD VALUE 5 - 2
     if ( III != JJJ && JJJ == KKK) {
-        QUICKADD(LOC2(obULL, JJJ-1, KKK-1, nbasis, nbasis), 0ull-val5b);
+        QUICKADD(LOC2(devSim.obULL, JJJ-1, KKK-1, nbasis, nbasis), 0ull-val5b);
     }
 
     // ATOMIC ADD VALUE 6
@@ -1868,11 +1878,11 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
             QUICKULL val6a = (QUICKULL) (fabs(val6da*OSCALE) + (QUICKDouble)0.5);
             if ( val6da < (QUICKDouble)0.0) val6a = 0ull - val6a;
 
-            QUICKADD(LOC2(oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6a);
+            QUICKADD(LOC2(devSim.oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6a);
 
             // ATOMIC ADD VALUE 6 - 2
             if (JJJ == LLL && III!= KKK) {
-                QUICKADD(LOC2(oULL, LLL-1, JJJ-1, nbasis, nbasis), 0ull-val6a);
+                QUICKADD(LOC2(devSim.oULL, LLL-1, JJJ-1, nbasis, nbasis), 0ull-val6a);
             }
         }
     }
@@ -1883,11 +1893,11 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
             QUICKULL val6b = (QUICKULL) (fabs(val6db*OSCALE) + (QUICKDouble)0.5);
             if ( val6db < (QUICKDouble)0.0) val6b = 0ull - val6b;
 
-            QUICKADD(LOC2(obULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6b);
+            QUICKADD(LOC2(devSim.obULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6b);
 
             // ATOMIC ADD VALUE 6 - 2
             if (JJJ == LLL && III!= KKK) {
-                QUICKADD(LOC2(obULL, LLL-1, JJJ-1, nbasis, nbasis), 0ull-val6b);
+                QUICKADD(LOC2(devSim.obULL, LLL-1, JJJ-1, nbasis, nbasis), 0ull-val6b);
             }
         }
     }
@@ -1908,19 +1918,14 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
     }
     
     QUICKDouble val1d = _tmp*DENSELK*Y;
+
+#ifdef LEGACY_ATOMIC_ADD
     QUICKULL val1 = (QUICKULL) (fabs(val1d*OSCALE) + (QUICKDouble)0.5);
     if ( val1d < (QUICKDouble)0.0) val1 = 0ull - val1;
-    QUICKADD(LOC2(oULL, JJJ-1, III-1, nbasis, nbasis), val1);
-
-/*
-#ifdef SINGLE_PRECISION
-   if(JJJ-1 == 0 && III-1 == 0)
-                   printf("SP addint Y DENSELK hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELK, hybrid_coeff,val1d, val1);
+    QUICKADD(LOC2(devSim.oULL, JJJ-1, III-1, nbasis, nbasis), val1);
 #else
-   if(JJJ-1 == 0 && III-1 == 0)
-                   printf("DP addint Y DENSELK hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELK, hybrid_coeff,val1d, val1);
+    CUDAADD(LOC2(DEVSIM.o, JJJ-1, III-1, nbasis, nbasis), val1d);
 #endif
-*/
 
     // ATOMIC ADD VALUE 2
     if ((LLL != JJJ) || (III!=KKK)) {
@@ -1930,151 +1935,102 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
         }
         
         QUICKDouble val2d = _tmp*DENSEJI*Y;
+
+#ifdef LEGACY_ATOMIC_ADD
         QUICKULL val2 = (QUICKULL) (fabs(val2d*OSCALE) + (QUICKDouble)0.5);
         if ( val2d < (QUICKDouble)0.0) val2 = 0ull - val2;
-        QUICKADD(LOC2(oULL, LLL-1, KKK-1, nbasis, nbasis), val2);
+        QUICKADD(LOC2(devSim.oULL, LLL-1, KKK-1, nbasis, nbasis), val2);
+#else
+        CUDAADD(LOC2(DEVSIM.o, LLL-1, KKK-1, nbasis, nbasis), val2d);
+#endif
 
-/*
-#ifdef SINGLE_PRECISION
-   if(LLL-1 == 0 && KKK-1 == 0)
-                   printf("SP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEJI, hybrid_coeff,val2d, val2);
-#else
-   if(LLL-1 == 0 && KKK-1 == 0)
-                   printf("DP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELK, hybrid_coeff,val2d, val2);
-#endif
-*/
-/*#ifdef SINGLE_PRECISION
-                   printf("SP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEJI, hybrid_coeff,val2d, val2);        
-#else
-                   printf("DP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEJI, hybrid_coeff,val2d, val2);        
-#endif
-*/
     }
     
     
     // ATOMIC ADD VALUE 3
     QUICKDouble val3d = hybrid_coeff*0.5*DENSELJ*Y;
-    
+   
+#ifdef LEGACY_ATOMIC_ADD 
     QUICKULL val3 = (QUICKULL) (fabs(val3d*OSCALE) + (QUICKDouble)0.5);
     if (((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
         val3 = (QUICKULL) (fabs(2*val3d*OSCALE) + (QUICKDouble)0.5);
     }
     if ( DENSELJ*Y < (QUICKDouble)0.0) val3 = 0ull - val3;
-    QUICKADD(LOC2(oULL, KKK-1, III-1, nbasis, nbasis), 0ull-val3);
-    
-/*
-#ifdef SINGLE_PRECISION
-   if(III-1 == 0 && KKK-1 == 0)
-                   printf("SP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELJ, hybrid_coeff,val3d, val3);
+    QUICKADD(LOC2(devSim.oULL, KKK-1, III-1, nbasis, nbasis), 0ull-val3);
 #else
-   if(III-1 == 0 && KKK-1 == 0)
-                   printf("DP addint Y DENSEJI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELJ, hybrid_coeff,val3d, val3);
+    if (((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
+        val3d = 2.0*val3d;
+    }
+
+    CUDAADD(LOC2(DEVSIM.o, KKK-1, III-1, nbasis, nbasis), 0.0-val3d);
 #endif
-*/
 
     // ATOMIC ADD VALUE 4
     if (KKK != LLL) {
         QUICKDouble val4d = hybrid_coeff*0.5*DENSEKJ*Y;
-        
+
+#ifdef LEGACY_ATOMIC_ADD        
         QUICKULL val4 = (QUICKULL) (fabs(val4d*OSCALE) + (QUICKDouble)0.5);
         if ( val4d < (QUICKDouble)0.0) val4 = 0ull - val4;
-        QUICKADD(LOC2(oULL, LLL-1, III-1, nbasis, nbasis), 0ull-val4);
+        QUICKADD(LOC2(devSim.oULL, LLL-1, III-1, nbasis, nbasis), 0ull-val4);
+#else
+        CUDAADD(LOC2(DEVSIM.o, LLL-1, III-1, nbasis, nbasis), 0.0-val4d);
+#endif
 
-/*
-#ifdef SINGLE_PRECISION
-   if(III-1 == 0 && LLL-1 == 0)
-                   printf("SP addint Y DENSEKJ hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKJ, hybrid_coeff,val4d, val4);
-#else
-   if(III-1 == 0 && LLL-1 == 0)
-                   printf("DP addint Y DENSEKJ hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKJ, hybrid_coeff,val4d, val4);
-#endif
-*/
-/*#ifdef SINGLE_PRECISION
-                   printf("SP addint Y DENSEKJ hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKJ, hybrid_coeff,val4d, val4);        
-#else
-                   printf("DP addint Y DENSEKJ hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKJ, hybrid_coeff,val4d, val4);
-#endif
-*/
     }
-    
     
     
     // ATOMIC ADD VALUE 5
     QUICKDouble val5d = hybrid_coeff*0.5*DENSELI*Y;
-    
+
+#ifdef LEGACY_ATOMIC_ADD    
     QUICKULL val5 = (QUICKULL) (fabs(val5d*OSCALE) + (QUICKDouble)0.5);
     if ( val5d < (QUICKDouble)0.0) val5 = 0ull - val5;
     
     if ((III != JJJ && III<KKK) || ((III == JJJ) && (III == KKK) && (III < LLL)) || ((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
-        QUICKADD(LOC2(oULL, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0ull-val5);
-/*
-#ifdef SINGLE_PRECISION
-   if((MAX(JJJ,KKK)-1) == 0 && (MIN(JJJ,KKK)-1) == 0)
-                   printf("SP addint Y DENSELI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELI, hybrid_coeff,val5d, val5);
-#else
-   if((MAX(JJJ,KKK)-1) == 0 && (MIN(JJJ,KKK)-1) == 0)
-                   printf("DP addint Y DENSELI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELI, hybrid_coeff,val5d, val5);
-#endif
-*/
+        QUICKADD(LOC2(devSim.oULL, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0ull-val5);
     }
-   
 
-#ifdef SINGLE_PRECISION
-//                   printf("SP addint val1 val3 val5 %d %d %d %d %f %f %f %f %lu %lu %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, val1d, val3d, val5d,  val1, val3, val5);
-//                   printf("SP addint val1 val3 val5 %d %d %d %d %f %f %f %f \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELJ, hybrid_coeff,val3d);
-
-#else
-//                   printf("DP addint val1 val3 val5 %d %d %d %d %f %f %f %f %lu %lu %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, val1d, val3d, val5d, val1, val3, val5);
-//                   printf("DP addint val1 val3 val5 %d %d %d %d %f %f %f %f \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELJ, hybrid_coeff,val3d);
-
-#endif 
-    
     // ATOMIC ADD VALUE 5 - 2
     if ( III != JJJ && JJJ == KKK) {
-        QUICKADD(LOC2(oULL, JJJ-1, KKK-1, nbasis, nbasis), 0ull-val5);
-/*
-#ifdef SINGLE_PRECISION
-   if( JJJ-1 == 0 && KKK-1 == 0)
-                   printf("SP addint Y DENSELI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELI, hybrid_coeff,val5d, val5);
-#else
-   if( JJJ-1 == 0 && KKK-1 == 0)
-                   printf("DP addint Y DENSELI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSELI, hybrid_coeff,val5d, val5);
-#endif
-*/
+        QUICKADD(LOC2(devSim.oULL, JJJ-1, KKK-1, nbasis, nbasis), 0ull-val5);
     }
+#else
+    if ((III != JJJ && III<KKK) || ((III == JJJ) && (III == KKK) && (III < LLL)) || ((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
+        CUDAADD(LOC2(DEVSIM.o, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0.0-val5d);
+    }
+
+    // ATOMIC ADD VALUE 5 - 2
+    if ( III != JJJ && JJJ == KKK) {
+        CUDAADD(LOC2(DEVSIM.o, JJJ-1, KKK-1, nbasis, nbasis), 0.0-val5d);
+    }
+#endif   
     
     // ATOMIC ADD VALUE 6
     if (III != JJJ) {
         if (KKK != LLL) {
             QUICKDouble val6d = hybrid_coeff*0.5*DENSEKI*Y;
+
+#ifdef LEGACY_ATOMIC_ADD 
             QUICKULL val6 = (QUICKULL) (fabs(val6d*OSCALE) + (QUICKDouble)0.5);
             if ( val6d < (QUICKDouble)0.0) val6 = 0ull - val6;
             
-            QUICKADD(LOC2(oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6);
+            QUICKADD(LOC2(devSim.oULL, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0ull-val6);
 
-/*
-#ifdef SINGLE_PRECISION
-   if( (MAX(JJJ,LLL)-1) == 0 && (MIN(JJJ,LLL)-1) == 0)
-                   printf("SP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
-#else
-   if( (MAX(JJJ,LLL)-1) == 0 && (MIN(JJJ,LLL)-1) == 0)
-                   printf("DP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
-#endif
-*/            
             // ATOMIC ADD VALUE 6 - 2
             if (JJJ == LLL && III!= KKK) {
-                QUICKADD(LOC2(oULL, LLL-1, JJJ-1, nbasis, nbasis), 0ull-val6);
-/*
-#ifdef SINGLE_PRECISION
-   if( LLL-1 == 0 && JJJ-1 == 0)
-                   printf("SP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
+                QUICKADD(LOC2(devSim.oULL, LLL-1, JJJ-1, nbasis, nbasis), 0ull-val6);
+            }
 #else
-   if( LLL-1 == 0 && JJJ-1 == 0)
-                   printf("DP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
-#endif
-*/
+
+            CUDAADD(LOC2(DEVSIM.o, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0.0-val6d);
+
+            // ATOMIC ADD VALUE 6 - 2
+            if (JJJ == LLL && III!= KKK) {
+                CUDAADD(LOC2(DEVSIM.o, LLL-1, JJJ-1, nbasis, nbasis), 0.0-val6d);
             }
 
+#endif
 /*#ifdef SINGLE_PRECISION
                    printf("SP addint Y DENSEKI hybrid_coeff  %d %d %d %d %f %f %f %f %lu \n", III-1, JJJ-1, KKK-1, LLL-1,Y, DENSEKI, hybrid_coeff,val6d, val6);
 #else
