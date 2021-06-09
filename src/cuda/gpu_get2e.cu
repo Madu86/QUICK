@@ -41,6 +41,11 @@ static __constant__ gpu_sp_simulation_type devSimSP;
 #undef DEVSIM
 #define DEVSIM devSimSP
 
+#define STATIC_FLOAT_CAST(num) num##f 
+
+#undef PRC_LVL
+#define PRC_LVL F
+
 #define SINGLE_PRECISION
 #undef QUICKDouble
 #define QUICKDouble float
@@ -471,6 +476,10 @@ static __constant__ gpu_sp_simulation_type devSimSP;
 #define QUICKDouble double
 #undef DEVSIM
 #define DEVSIM devSim
+#undef PRC_LVL
+
+#undef STATIC_FLOAT_CAST
+#define STATIC_FLOAT_CAST(num) (num) 
 
 #endif // end including single precision code paths
 
