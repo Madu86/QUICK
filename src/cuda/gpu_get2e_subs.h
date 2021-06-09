@@ -498,12 +498,12 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
             
             
             int nshell = devSim.nshell;
-            QUICKDouble DNMax = MAX(MAX(4.0*LOC2(DEVSIM.cutMatrix, ii, jj, nshell, nshell), 4.0*LOC2(DEVSIM.cutMatrix, kk, ll, nshell, nshell)),
+            QUICKDouble DNMax = MAX(MAX(STATIC_FLOAT_CAST(4.0)*LOC2(DEVSIM.cutMatrix, ii, jj, nshell, nshell), STATIC_FLOAT_CAST(4.0)*LOC2(DEVSIM.cutMatrix, kk, ll, nshell, nshell)),
                                     MAX(MAX(LOC2(DEVSIM.cutMatrix, ii, ll, nshell, nshell),     LOC2(DEVSIM.cutMatrix, ii, kk, nshell, nshell)),
                                         MAX(LOC2(DEVSIM.cutMatrix, jj, kk, nshell, nshell),     LOC2(DEVSIM.cutMatrix, jj, ll, nshell, nshell))));
             
-            if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell))> devSim.integralCutoff && \
-                (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) > devSim.integralCutoff) {
+            if ((LOC2(DEVSIM.YCutoff, kk, ll, nshell, nshell) * LOC2(DEVSIM.YCutoff, ii, jj, nshell, nshell))> DEVSIM.integralCutoff && \
+                (LOC2(DEVSIM.YCutoff, kk, ll, nshell, nshell) * LOC2(DEVSIM.YCutoff, ii, jj, nshell, nshell) * DNMax) > DEVSIM.integralCutoff) {
                 
                 int iii = devSim.sorted_Qnumber[II];
                 int jjj = devSim.sorted_Qnumber[JJ];
@@ -1126,67 +1126,67 @@ __device__ __forceinline__ void iclass_spdf10
                 vertical(I, J, K, L, YVerticalTemp, store, \
                          Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                          Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                         0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                         STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf
                 
                 vertical_spdf(I, J, K, L, YVerticalTemp, store, \
                          Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                          Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                         0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                         STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf2
                 
                 vertical_spdf2(I, J, K, L, YVerticalTemp, store, \
                               Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                               Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                              0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                              STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf3
                 
                 vertical_spdf3(I, J, K, L, YVerticalTemp, store, \
                               Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                               Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                              0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                              STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf4
                 
                 vertical_spdf4(I, J, K, L, YVerticalTemp, store, \
                                Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                                Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                               0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                               STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf5
                 
                 vertical_spdf5(I, J, K, L, YVerticalTemp, store, \
                               Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                               Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                              0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                              STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf6
                 
                 vertical_spdf6(I, J, K, L, YVerticalTemp, store, \
                                Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                                Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                               0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                               STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf7
                 
                 vertical_spdf7(I, J, K, L, YVerticalTemp, store, \
                                Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                                Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                               0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                               STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf8
                 
                 vertical_spdf8(I, J, K, L, YVerticalTemp, store, \
                                Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                                Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                               0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                               STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf9
                 
                 vertical_spdf9(I, J, K, L, YVerticalTemp, store, \
                                Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                                Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                               0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                               STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #elif defined int_spdf10
                 
                 vertical_spdf10(I, J, K, L, YVerticalTemp, store, \
                                Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                                Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
-                               0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);
+                               STATIC_FLOAT_CAST(0.5) * ABCD, STATIC_FLOAT_CAST(0.5) / AB, STATIC_FLOAT_CAST(0.5) / CD, AB * ABCD, CD * ABCD);
 #endif
                 
             }
@@ -1282,7 +1282,7 @@ __device__ __forceinline__ void iclass_spdf10
                                                                RAx, RAy, RAz, RBx, RBy, RBz, \
                                                                RCx, RCy, RCz, RDx, RDy, RDz);
 #ifdef int_spd
-                        if (abs(Y) > 0.0e0)
+                        if (abs(Y) > STATIC_FLOAT_CAST(0.0e0))
 #else
                         if (abs(Y) > DEVSIM.integralCutoff)
 #endif
@@ -1912,9 +1912,9 @@ __device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK,
     QUICKDouble DENSEJI = LOC2(DEVSIM.dense, JJJ-1, III-1, nbasis, nbasis);
     
     // ATOMIC ADD VALUE 1
-    QUICKDouble _tmp = 2.0;
+    QUICKDouble _tmp = STATIC_FLOAT_CAST(2.0);
     if (KKK==LLL) {
-        _tmp = 1.0;
+        _tmp = STATIC_FLOAT_CAST(1.0);
     }
     
     QUICKDouble val1d = _tmp*DENSELK*Y;
@@ -1929,9 +1929,9 @@ __device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK,
 
     // ATOMIC ADD VALUE 2
     if ((LLL != JJJ) || (III!=KKK)) {
-        _tmp = 2.0;
+        _tmp = STATIC_FLOAT_CAST(2.0);
         if (III==JJJ) {
-            _tmp = 1.0;
+            _tmp = STATIC_FLOAT_CAST(1.0);
         }
         
         QUICKDouble val2d = _tmp*DENSEJI*Y;
@@ -1948,7 +1948,7 @@ __device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK,
     
     
     // ATOMIC ADD VALUE 3
-    QUICKDouble val3d = hybrid_coeff*0.5*DENSELJ*Y;
+    QUICKDouble val3d = hybrid_coeff*STATIC_FLOAT_CAST(0.5)*DENSELJ*Y;
    
 #ifdef LEGACY_ATOMIC_ADD 
     QUICKULL val3 = (QUICKULL) (fabs(val3d*OSCALE) + (QUICKDouble)0.5);
@@ -1959,29 +1959,29 @@ __device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK,
     QUICKADD(LOC2(devSim.oULL, KKK-1, III-1, nbasis, nbasis), 0ull-val3);
 #else
     if (((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
-        val3d = 2.0*val3d;
+        val3d = STATIC_FLOAT_CAST(2.0)*val3d;
     }
 
-    CUDAADD(LOC2(DEVSIM.o, KKK-1, III-1, nbasis, nbasis), 0.0-val3d);
+    CUDAADD(LOC2(DEVSIM.o, KKK-1, III-1, nbasis, nbasis), STATIC_FLOAT_CAST(0.0)-val3d);
 #endif
 
     // ATOMIC ADD VALUE 4
     if (KKK != LLL) {
-        QUICKDouble val4d = hybrid_coeff*0.5*DENSEKJ*Y;
+        QUICKDouble val4d = hybrid_coeff*STATIC_FLOAT_CAST(0.5)*DENSEKJ*Y;
 
 #ifdef LEGACY_ATOMIC_ADD        
         QUICKULL val4 = (QUICKULL) (fabs(val4d*OSCALE) + (QUICKDouble)0.5);
         if ( val4d < (QUICKDouble)0.0) val4 = 0ull - val4;
         QUICKADD(LOC2(devSim.oULL, LLL-1, III-1, nbasis, nbasis), 0ull-val4);
 #else
-        CUDAADD(LOC2(DEVSIM.o, LLL-1, III-1, nbasis, nbasis), 0.0-val4d);
+        CUDAADD(LOC2(DEVSIM.o, LLL-1, III-1, nbasis, nbasis), STATIC_FLOAT_CAST(0.0)-val4d);
 #endif
 
     }
     
     
     // ATOMIC ADD VALUE 5
-    QUICKDouble val5d = hybrid_coeff*0.5*DENSELI*Y;
+    QUICKDouble val5d = hybrid_coeff*STATIC_FLOAT_CAST(0.5)*DENSELI*Y;
 
 #ifdef LEGACY_ATOMIC_ADD    
     QUICKULL val5 = (QUICKULL) (fabs(val5d*OSCALE) + (QUICKDouble)0.5);
@@ -1997,19 +1997,19 @@ __device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK,
     }
 #else
     if ((III != JJJ && III<KKK) || ((III == JJJ) && (III == KKK) && (III < LLL)) || ((III == KKK) && (III <  JJJ) && (JJJ < LLL))) {
-        CUDAADD(LOC2(DEVSIM.o, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), 0.0-val5d);
+        CUDAADD(LOC2(DEVSIM.o, MAX(JJJ,KKK)-1, MIN(JJJ,KKK)-1, nbasis, nbasis), STATIC_FLOAT_CAST(0.0)-val5d);
     }
 
     // ATOMIC ADD VALUE 5 - 2
     if ( III != JJJ && JJJ == KKK) {
-        CUDAADD(LOC2(DEVSIM.o, JJJ-1, KKK-1, nbasis, nbasis), 0.0-val5d);
+        CUDAADD(LOC2(DEVSIM.o, JJJ-1, KKK-1, nbasis, nbasis), STATIC_FLOAT_CAST(0.0)-val5d);
     }
 #endif   
     
     // ATOMIC ADD VALUE 6
     if (III != JJJ) {
         if (KKK != LLL) {
-            QUICKDouble val6d = hybrid_coeff*0.5*DENSEKI*Y;
+            QUICKDouble val6d = hybrid_coeff*STATIC_FLOAT_CAST(0.5)*DENSEKI*Y;
 
 #ifdef LEGACY_ATOMIC_ADD 
             QUICKULL val6 = (QUICKULL) (fabs(val6d*OSCALE) + (QUICKDouble)0.5);
@@ -2023,11 +2023,11 @@ __device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK,
             }
 #else
 
-            CUDAADD(LOC2(DEVSIM.o, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), 0.0-val6d);
+            CUDAADD(LOC2(DEVSIM.o, MAX(JJJ,LLL)-1, MIN(JJJ,LLL)-1, nbasis, nbasis), STATIC_FLOAT_CAST(0.0)-val6d);
 
             // ATOMIC ADD VALUE 6 - 2
             if (JJJ == LLL && III!= KKK) {
-                CUDAADD(LOC2(DEVSIM.o, LLL-1, JJJ-1, nbasis, nbasis), 0.0-val6d);
+                CUDAADD(LOC2(DEVSIM.o, LLL-1, JJJ-1, nbasis, nbasis), STATIC_FLOAT_CAST(0.0)-val6d);
             }
 
 #endif
@@ -2046,71 +2046,71 @@ __device__ __forceinline__ void addint(QUICKDouble Y, int III, int JJJ, int KKK,
 __device__ __forceinline__ void FmT(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
 {
     
-    const QUICKDouble PIE4 = (QUICKDouble) PI/4.0 ;
+    const QUICKDouble PIE4 = (QUICKDouble) PI/STATIC_FLOAT_CAST(4.0) ;
     
-    const QUICKDouble XINV = (QUICKDouble) 1.0 /X;
+    const QUICKDouble XINV = (QUICKDouble) STATIC_FLOAT_CAST(1.0) /X;
     const QUICKDouble E = (QUICKDouble) exp(-X);
     QUICKDouble WW1, F1;
-    if (X > 5.0) {
+    if (X > STATIC_FLOAT_CAST(5.0)) {
         WW1 = sqrt(PIE4 * XINV);
     }else{
         WW1 = E;
     }
     
     
-    if (X > 33.0) {
+    if (X > STATIC_FLOAT_CAST(33.0)) {
         
-    }else if( X > 15.0){
-        WW1 += (( 1.9623264149430E-01 *XINV-4.9695241464490E-01 )*XINV - \
-                6.0156581186481E-05 )*E;
-    }else if (X > 10.0 ){
-        WW1 += (((-1.8784686463512E-01 *XINV+2.2991849164985E-01 )*XINV - \
-                 4.9893752514047E-01 )*XINV-2.1916512131607E-05 )*E;
-    }else if (X > 5.0) {
-        WW1 += (((((( 4.6897511375022E-01  *XINV-6.9955602298985E-01 )*XINV + \
-                    5.3689283271887E-01 )*XINV-3.2883030418398E-01 )*XINV + \
-                  2.4645596956002E-01 )*XINV-4.9984072848436E-01 )*XINV - \
-                3.1501078774085E-06 )*E;
-    }else if (X > 3.0){
-        QUICKDouble Y = (QUICKDouble) X - 4.0 ;
-        F1 = ((((((((((-2.62453564772299E-11 *Y+3.24031041623823E-10  )*Y- \
-                      3.614965656163E-09 )*Y+3.760256799971E-08 )*Y- \
-                    3.553558319675E-07 )*Y+3.022556449731E-06 )*Y- \
-                  2.290098979647E-05 )*Y+1.526537461148E-04 )*Y- \
-                8.81947375894379E-04 )*Y+4.33207949514611E-03 )*Y- \
-              1.75257821619926E-02 )*Y+5.28406320615584E-02 ;
+    }else if( X > STATIC_FLOAT_CAST(15.0)){
+        WW1 += (( STATIC_FLOAT_CAST(1.9623264149430E-01) *XINV- STATIC_FLOAT_CAST(4.9695241464490E-01) )*XINV - \
+                STATIC_FLOAT_CAST(6.0156581186481E-05) )*E;
+    }else if (X > STATIC_FLOAT_CAST(10.0) ){
+        WW1 += ((( STATIC_FLOAT_CAST(-1.8784686463512E-01) *XINV+ STATIC_FLOAT_CAST(2.2991849164985E-01) )*XINV - \
+                 STATIC_FLOAT_CAST(4.9893752514047E-01) )*XINV-STATIC_FLOAT_CAST(2.1916512131607E-05) )*E;
+    }else if (X > STATIC_FLOAT_CAST(5.0)) {
+        WW1 += (((((( STATIC_FLOAT_CAST(4.6897511375022E-01)  *XINV- STATIC_FLOAT_CAST(6.9955602298985E-01) )*XINV + \
+                    STATIC_FLOAT_CAST(5.3689283271887E-01) )*XINV- STATIC_FLOAT_CAST(3.2883030418398E-01) )*XINV + \
+                  STATIC_FLOAT_CAST(2.4645596956002E-01) )*XINV- STATIC_FLOAT_CAST(4.9984072848436E-01) )*XINV - \
+                STATIC_FLOAT_CAST(3.1501078774085E-06) )*E;
+    }else if (X > STATIC_FLOAT_CAST(3.0)){
+        QUICKDouble Y = (QUICKDouble) X - STATIC_FLOAT_CAST(4.0) ;
+        F1 = ((((((((((STATIC_FLOAT_CAST(-2.62453564772299E-11) *Y+ STATIC_FLOAT_CAST(3.24031041623823E-10) )*Y- \
+                      STATIC_FLOAT_CAST(3.614965656163E-09) )*Y+ STATIC_FLOAT_CAST(3.760256799971E-08) )*Y- \
+                    STATIC_FLOAT_CAST(3.553558319675E-07) )*Y+ STATIC_FLOAT_CAST(3.022556449731E-06) )*Y- \
+                  STATIC_FLOAT_CAST(2.290098979647E-05) )*Y+ STATIC_FLOAT_CAST(1.526537461148E-04) )*Y- \
+                STATIC_FLOAT_CAST(8.81947375894379E-04) )*Y+ STATIC_FLOAT_CAST(4.33207949514611E-03) )*Y- \
+              STATIC_FLOAT_CAST(1.75257821619926E-02) )*Y+ STATIC_FLOAT_CAST(5.28406320615584E-02) ;
 	WW1 += (X+X)*F1;
-    }else if (X > 1.0){
-        QUICKDouble Y = (QUICKDouble) X - 2.0 ;
-        F1 = ((((((((((-1.61702782425558E-10 *Y+1.96215250865776E-09  )*Y- \
-                      2.14234468198419E-08  )*Y+2.17216556336318E-07  )*Y- \
-                    1.98850171329371E-06  )*Y+1.62429321438911E-05  )*Y- \
-                  1.16740298039895E-04  )*Y+7.24888732052332E-04  )*Y- \
-                3.79490003707156E-03  )*Y+1.61723488664661E-02  )*Y- \
-              5.29428148329736E-02  )*Y+1.15702180856167E-01 ;
+    }else if (X > STATIC_FLOAT_CAST(1.0)){
+        QUICKDouble Y = (QUICKDouble) X - STATIC_FLOAT_CAST(2.0) ;
+        F1 = ((((((((((STATIC_FLOAT_CAST(-1.61702782425558E-10) *Y+ STATIC_FLOAT_CAST(1.96215250865776E-09) )*Y- \
+                      STATIC_FLOAT_CAST(2.14234468198419E-08) )*Y+ STATIC_FLOAT_CAST(2.17216556336318E-07) )*Y- \
+                    STATIC_FLOAT_CAST(1.98850171329371E-06) )*Y+ STATIC_FLOAT_CAST(1.62429321438911E-05) )*Y- \
+                  STATIC_FLOAT_CAST(1.16740298039895E-04) )*Y+ STATIC_FLOAT_CAST(7.24888732052332E-04) )*Y- \
+                STATIC_FLOAT_CAST(3.79490003707156E-03) )*Y+ STATIC_FLOAT_CAST(1.61723488664661E-02) )*Y- \
+              STATIC_FLOAT_CAST(5.29428148329736E-02) )*Y+ STATIC_FLOAT_CAST(1.15702180856167E-01) ;
 	WW1 += (X+X)*F1;
-    }else if (X > 1.0E-1 || (X> 1.0E-4 && MaxM < 4)){
+    }else if (X > STATIC_FLOAT_CAST(1.0E-1) || (X> STATIC_FLOAT_CAST(1.0E-4) && MaxM < 4)){
         
-        F1 =(((((((( -8.36313918003957E-08 *X+1.21222603512827E-06  )*X- \
-                   1.15662609053481E-05  )*X+9.25197374512647E-05  )*X- \
-                 6.40994113129432E-04  )*X+3.78787044215009E-03  )*X- \
-               1.85185172458485E-02  )*X+7.14285713298222E-02  )*X- \
-             1.99999999997023E-01  )*X+3.33333333333318E-01 ;
+        F1 =(((((((( STATIC_FLOAT_CAST(-8.36313918003957E-08) *X+ STATIC_FLOAT_CAST(1.21222603512827E-06) )*X- \
+                   STATIC_FLOAT_CAST(1.15662609053481E-05) )*X+ STATIC_FLOAT_CAST(9.25197374512647E-05) )*X- \
+                 STATIC_FLOAT_CAST(6.40994113129432E-04) )*X+ STATIC_FLOAT_CAST(3.78787044215009E-03) )*X- \
+               STATIC_FLOAT_CAST(1.85185172458485E-02) )*X+ STATIC_FLOAT_CAST(7.14285713298222E-02) )*X- \
+             STATIC_FLOAT_CAST(1.99999999997023E-01) )*X+ STATIC_FLOAT_CAST(3.33333333333318E-01) ;
 	WW1 += (X+X)*F1;
     }else{
-        WW1 = (1.0 - X)/(QUICKDouble)(2.0 * MaxM+1);
+        WW1 = (STATIC_FLOAT_CAST(1.0) - X)/(QUICKDouble)(STATIC_FLOAT_CAST(2.0) * MaxM+1);
     }
     
     
-    if (X > 1.0E-1 || (X> 1.0E-4 && MaxM < 4)) {
+    if (X > STATIC_FLOAT_CAST(1.0E-1) || (X> STATIC_FLOAT_CAST(1.0E-4) && MaxM < 4)) {
         LOC3(YVerticalTemp, 0, 0, 0, VDIM1, VDIM2, VDIM3) = WW1;
         for (int m = 1; m<= MaxM; m++) {
-            LOC3(YVerticalTemp, 0, 0, m, VDIM1, VDIM2, VDIM3) = (((2*m-1)*LOC3(YVerticalTemp, 0, 0, m-1, VDIM1, VDIM2, VDIM3))- E)*0.5*XINV;
+            LOC3(YVerticalTemp, 0, 0, m, VDIM1, VDIM2, VDIM3) = (((2*m-1)*LOC3(YVerticalTemp, 0, 0, m-1, VDIM1, VDIM2, VDIM3))- E)*STATIC_FLOAT_CAST(0.5)*XINV;
         }
     }else {
         LOC3(YVerticalTemp, 0, 0, MaxM, VDIM1, VDIM2, VDIM3) = WW1;
         for (int m = MaxM-1; m >=0; m--) {
-            LOC3(YVerticalTemp, 0, 0, m, VDIM1, VDIM2, VDIM3) = (2.0 * X * LOC3(YVerticalTemp, 0, 0, m+1, VDIM1, VDIM2, VDIM3) + E) / (QUICKDouble)(m*2+1);
+            LOC3(YVerticalTemp, 0, 0, m, VDIM1, VDIM2, VDIM3) = (STATIC_FLOAT_CAST(2.0) * X * LOC3(YVerticalTemp, 0, 0, m+1, VDIM1, VDIM2, VDIM3) + E) / (QUICKDouble)(m*2+1);
         }
     }
     return;
