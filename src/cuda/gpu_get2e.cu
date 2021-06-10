@@ -505,8 +505,10 @@ void get2e(_gpu_type gpu)
     // Part spd
 //    nvtxRangePushA("SCF 2e");
 
-    QUICK_SAFE_CALL((get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
- 
+//    QUICK_SAFE_CALL((get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+
+      QUICK_SAFE_CALL((get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock, gpu->twoEThreadsPerBlock*VDIM1*VDIM2*VDIM3*sizeof(QUICKDouble)>>>())); 
+
 #ifdef CUDA_SPDF
     if (gpu->maxL >= 3) {
         // Part f-1

@@ -145,9 +145,14 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #endif
 #endif
 {
+
+#ifndef OSHELL
+    extern __shared__ QUICKDouble YVerticalTemp[];    
+#endif
+
     unsigned int offside = blockIdx.x*blockDim.x+threadIdx.x;
     int totalThreads = blockDim.x*gridDim.x;
-    
+
     // jshell and jshell2 defines the regions in i+j and k+l axes respectively.    
     // sqrQshell= Qshell x Qshell; where Qshell is the number of sorted shells (see gpu_upload_basis_ in gpu.cu)
     // for details on sorting. 
@@ -490,69 +495,69 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #endif
 #else          
 #ifdef int_spd
-                    iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
-                    iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
                 
                 
 #elif defined int_spdf2
                 if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
-                    iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
                 
 #elif defined int_spdf3
                 
                 
                 if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                    iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
                 
 #elif defined int_spdf4
                 
                 
                 if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                    iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
                 
 #elif defined int_spdf5
                 
                 if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
-                    iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
                 
                 
 #elif defined int_spdf6
                 if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
-                    iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
                 
 #elif defined int_spdf7
                 
                 
                 if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
-                    iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
                 
 #elif defined int_spdf8
                 
                 
                 if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
 #elif defined int_spdf9
                 
                 
                 if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
 #elif defined int_spdf10
                 
                 
                 if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16);
                 }
 #endif
 #endif
@@ -594,6 +599,8 @@ __device__ __forceinline__ void iclass_oshell_spdf9
 #elif defined int_spdf10
 __device__ __forceinline__ void iclass_oshell_spdf10
 #endif
+                                      (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax)
+
 #else
 #ifdef int_spd
 __device__ __forceinline__ void iclass
@@ -618,8 +625,9 @@ __device__ __forceinline__ void iclass_spdf9
 #elif defined int_spdf10
 __device__ __forceinline__ void iclass_spdf10
 #endif
+                                      (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp)
+
 #endif
-                                      (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax)
 {
     
     /*
@@ -662,6 +670,7 @@ __device__ __forceinline__ void iclass_spdf10
      
      See M.Head-Gordon and J.A.Pople, Jchem.Phys., 89, No.9 (1988) for VRR algrithem details.
      */
+
     QUICKDouble store[STOREDIM*STOREDIM];
     
     /*
@@ -855,8 +864,10 @@ __device__ __forceinline__ void iclass_spdf10
                 QUICKDouble Qz = LOC2(devSim.weightedCenterZ, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
                 
                 //QUICKDouble T = AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz));
-                
+
+#ifdef OSHELL                
                 QUICKDouble YVerticalTemp[VDIM1*VDIM2*VDIM3];
+#endif
                 FmT(I+J+K+L, AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz)), YVerticalTemp);
                 for (int i = 0; i<=I+J+K+L; i++) {
                     VY(0, 0, i) = VY(0, 0, i) * X2;
