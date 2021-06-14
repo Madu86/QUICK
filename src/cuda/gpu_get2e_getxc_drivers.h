@@ -29,6 +29,12 @@ extern "C" void gpu_get_cshell_eri_(QUICKDouble* o)
 {
     PRINTDEBUG("BEGIN TO RUN GET ERI")
 
+    gpu -> gpu_calculated -> store        =   new cuda_buffer_type<QUICKDouble>(STOREDIM_L * STOREDIM_L * gpu->twoEThreadsPerBlock * gpu->blocks);
+
+    gpu -> gpu_calculated -> store     -> Upload();
+
+    gpu -> gpu_sim.store = gpu -> gpu_calculated -> store -> _devData;
+
     upload_sim_to_constant(gpu);
 
     PRINTDEBUG("BEGIN TO RUN KERNEL")
@@ -121,6 +127,7 @@ extern "C" void gpu_get_cshell_eri_(QUICKDouble* o)
     }
 
     delete gpu->gpu_cutoff->cutMatrix;
+    delete gpu -> gpu_calculated -> store;
 
     PRINTDEBUG("COMPLETE RUNNING GET2E")
 }

@@ -37,6 +37,7 @@ struct gpu_calculated_type {
     cuda_buffer_type<QUICKULL>*     oULL;   // Unsigned long long int type O matrix
     cuda_buffer_type<QUICKULL>*     obULL;  // Unsigned long long int type Ob matrix
     cuda_buffer_type<QUICKDouble>*  distance; // distance matrix
+    cuda_buffer_type<QUICKDouble>*  store;
 };
 
 struct gpu_timer_type{
@@ -285,7 +286,8 @@ struct gpu_simulation_type {
     QUICKDouble*                    ob;
     QUICKULL*                       obULL;
     QUICKDouble*                    denseb;
-    
+    QUICKDouble*                    store;    
+
     QUICKDouble*                    distance;
     QUICKDouble*                    Xcoeff;
     QUICKDouble*                    expoSum;
