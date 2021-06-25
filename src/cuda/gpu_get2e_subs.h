@@ -495,69 +495,69 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #endif
 #else          
 #ifdef int_spd
-                    iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
-                    iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
                 
                 
 #elif defined int_spdf2
                 if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
-                    iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf2(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
                 
 #elif defined int_spdf3
                 
                 
                 if ( (iii + jjj) >= 5 && (iii + jjj) <= 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                    iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf3(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
                 
 #elif defined int_spdf4
                 
                 
                 if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 5) {
-                    iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf4(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
                 
 #elif defined int_spdf5
                 
                 if ( (kkk + lll) == 6 && (iii + jjj) >= 4 && (iii + jjj) <= 6) {
-                    iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf5(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
                 
                 
 #elif defined int_spdf6
                 if ( (iii + jjj) == 6 && (kkk + lll) <= 6 && (kkk + lll) >= 4) {
-                    iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf6(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
                 
 #elif defined int_spdf7
                 
                 
                 if ( (iii + jjj) >=5 && (iii + jjj) <= 6 && (kkk + lll) == 6) {
-                    iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf7(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
                 
 #elif defined int_spdf8
                 
                 
                 if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf8(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
 #elif defined int_spdf9
                 
                 
                 if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf9(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
 #elif defined int_spdf10
                 
                 
                 if ( (iii + jjj) == 6 && (kkk + lll) == 6) {
-                    iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store+offside*STOREDIM*STOREDIM);
+                    iclass_spdf10(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, YVerticalTemp+threadIdx.x*16, devSim.store);
                 }
 #endif
 #endif
@@ -684,7 +684,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -693,7 +693,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -702,7 +702,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -711,7 +711,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -720,7 +720,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -729,7 +729,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -738,7 +738,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -747,7 +747,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -756,7 +756,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -765,7 +765,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -774,7 +774,7 @@ __device__ __forceinline__ void iclass_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
@@ -1263,7 +1263,7 @@ __device__ __forceinline__ void iclass_AOInt_spdf10
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
-                LOC2(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
             }
         }
     }
