@@ -507,7 +507,7 @@ void get2e(_gpu_type gpu)
 
 //    QUICK_SAFE_CALL((get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
 
-      QUICK_SAFE_CALL((get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock, gpu->twoEThreadsPerBlock*VDIM1*VDIM2*VDIM3*sizeof(QUICKDouble)>>>())); 
+      QUICK_SAFE_CALL((get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>())); 
 
 #ifdef CUDA_SPDF
     if (gpu->maxL >= 3) {

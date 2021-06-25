@@ -52,13 +52,15 @@ fflush(stdout);\
 // Macro for two- and three- dimension array, d1,d2 and d3 are the dimension and i1,i2 and i3 are the indices
 #define LOC2(A,i1,i2,d1,d2)  A[i1+(i2)*(d1)]
 #define LOCSTORE(A,i1,i2,d1,d2) A[(i1+(i2)*(d1))*gridDim.x*blockDim.x+blockIdx.x*blockDim.x+threadIdx.x]
+#define LOCVY(A,i1,i2,i3,d1,d2,d3) A[(i3+((i2)+(i1)*(d2))*(d3))*gridDim.x*blockDim.x+blockIdx.x*blockDim.x+threadIdx.x]
 #define LOC3(A,i1,i2,i3,d1,d2,d3) A[i3+((i2)+(i1)*(d2))*(d3)]
 #define LOC4(A,i1,i2,i3,i4,d1,d2,d3,d4) A[i4+(i3+((i2)+(i1)*(d2))*(d3))*(d4)]
 
 #define MAX(A,B)    (A>=B?A:B)
 #define MIN(A,B)    (A<B?A:B)
 
-#define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
+//#define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
+#define VY(a,b,c) LOCVY(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
 
 #define PRINTERROR(err, s) \
 {\
