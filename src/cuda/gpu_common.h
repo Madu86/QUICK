@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
+#include <cuda_fp16.h>
 #include "nvToolsExt.h"
 #include "../octree/gpack_common.h"
 

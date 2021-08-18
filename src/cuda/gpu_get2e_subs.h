@@ -1283,14 +1283,14 @@ QUICKDouble* YVerticalTemp, QUICKDouble* store)
          X1 is the contracted coeffecient, which is pre-calcuated in CPU stage as well.
          cutoffprim is used to cut too small prim gaussian function when bring density matrix into consideration.
          */
-        QUICKDouble cutoffPrim = DNMax * LOC2(devSim.cutPrim, kStartI+III, kStartJ+JJJ, devSim.jbasis, devSim.jbasis);
+        QUICKDouble cutoffPrim = DNMax * __half2float(LOC2(devSim.cutPrimHalf, kStartI+III, kStartJ+JJJ, devSim.jbasis, devSim.jbasis));
         QUICKDouble X1 = LOC4(devSim.Xcoeff, kStartI+III, kStartJ+JJJ, I - devSim.Qstart[II], J - devSim.Qstart[JJ], devSim.jbasis, devSim.jbasis, 2, 2);
         
         for (int j = 0; j<kPrimK*kPrimL; j++){
             int LLL = (int) j/kPrimK;
             int KKK = (int) j-kPrimK*LLL;
             
-            if (cutoffPrim * LOC2(devSim.cutPrim, kStartK+KKK, kStartL+LLL, devSim.jbasis, devSim.jbasis) > devSim.primLimit) {
+            if (cutoffPrim * __half2float(LOC2(devSim.cutPrimHalf, kStartK+KKK, kStartL+LLL, devSim.jbasis, devSim.jbasis)) > devSim.primLimit) {
                 /*
                  CD = expo(L)+expo(K)
                  ABCD = 1/ (AB + CD) = 1 / (expo(I)+expo(J)+expo(K)+expo(L))

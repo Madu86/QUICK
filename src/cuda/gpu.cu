@@ -1124,7 +1124,25 @@ extern "C" void gpu_upload_cutoff_matrix_(QUICKDouble* YCutoff,QUICKDouble* cutP
     gpu -> gpu_sim.sqrQshell        = gpu -> gpu_cutoff -> sqrQshell;
     gpu -> gpu_sim.YCutoff          = gpu -> gpu_cutoff -> YCutoff -> _devData;
     gpu -> gpu_sim.cutPrim          = gpu -> gpu_cutoff -> cutPrim -> _devData;
+
     gpu -> gpu_sim.sorted_YCutoffIJ = gpu -> gpu_cutoff -> sorted_YCutoffIJ  -> _devData;
+
+   size_t _tmpSize=gpu->jbasis * gpu->jbasis * sizeof(__half);
+
+   printf("tmpSize: %d bytes\n", _tmpSize);
+
+    __half *hostCutPrimHalf = (__half*) malloc(_tmpSize);
+    __half *devCutPrimHalf; 
+    cudaMalloc(&devCutPrimHalf, _tmpSize);
+
+     for(int i=0; i< gpu->nbasis; ++i)
+        for(int j=0; j< gpu->nbasis; ++j)
+            LOC2(hostCutPrimHalf, j, i, gpu->jbasis, gpu->jbasis) = __double2half(LOC2(gpu -> gpu_cutoff -> cutPrim -> _hostData, j, i, gpu->jbasis, gpu->jbasis));
+
+   cudaMemcpy(devCutPrimHalf, hostCutPrimHalf, _tmpSize, cudaMemcpyHostToDevice);
+   gpu -> gpu_sim.cutPrimHalf = devCutPrimHalf;
+
+   free(hostCutPrimHalf);
 
 #ifdef CUDA_MPIV
 
@@ -2620,6 +2638,7 @@ extern "C" void gpu_cleanup_(){
     SAFE_DELETE(gpu->gpu_cutoff->sorted_YCutoffIJ);
     SAFE_DELETE(gpu->gpu_cutoff->YCutoff);
     SAFE_DELETE(gpu->gpu_cutoff->cutPrim);
+    cudaFree(gpu -> gpu_sim.cutPrimHalf);
 
     SAFE_DELETE(gpu->allxyz);
     SAFE_DELETE(gpu->allchg);

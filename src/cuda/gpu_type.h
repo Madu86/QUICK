@@ -319,6 +319,7 @@ struct gpu_simulation_type {
     QUICKDouble*                    cutMatrix;
     QUICKDouble*                    YCutoff;
     QUICKDouble*                    cutPrim;
+    __half*                         cutPrimHalf;
     QUICKDouble                     integralCutoff;
     QUICKDouble                     primLimit;
     QUICKDouble                     DMCutoff;
