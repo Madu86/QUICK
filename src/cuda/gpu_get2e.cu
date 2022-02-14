@@ -26,7 +26,7 @@
  Sumindex: a array to store refect how many temp variable needed in VRR. can be elimited by hand writing code.
  */
 static __constant__ gpu_simulation_type devSim;
-static __constant__ int devTrans[TRANSDIM*TRANSDIM*TRANSDIM];
+static __constant__ unsigned char devTrans[TRANSDIM*TRANSDIM*TRANSDIM];
 static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 
 
@@ -695,7 +695,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) getAddInt_kernel(int bufferSize
 
 void upload_para_to_const(){
     
-    int trans[TRANSDIM*TRANSDIM*TRANSDIM];
+    unsigned char trans[TRANSDIM*TRANSDIM*TRANSDIM];
     // Data to trans
     {
         LOC3(trans, 0, 0, 0, TRANSDIM, TRANSDIM, TRANSDIM) =   1;
@@ -822,7 +822,7 @@ void upload_para_to_const(){
     // upload to trans device location
     cudaError_t status;
 
-    status = cudaMemcpyToSymbol(devTrans, trans, sizeof(int)*TRANSDIM*TRANSDIM*TRANSDIM);
+    status = cudaMemcpyToSymbol(devTrans, trans, sizeof(unsigned char)*TRANSDIM*TRANSDIM*TRANSDIM);
     PRINTERROR(status, " cudaMemcpyToSymbol, Trans copy to constants failed")
 
 }

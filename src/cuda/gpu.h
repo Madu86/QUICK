@@ -561,29 +561,29 @@ __device__ int lefthrr_s(QUICKDouble RAx, QUICKDouble RAy, QUICKDouble RAz,
                        QUICKDouble RBx, QUICKDouble RBy, QUICKDouble RBz,
                        int KLMNAx, int KLMNAy, int KLMNAz,
                        int KLMNBx, int KLMNBy, int KLMNBz,
-                       int IJTYPE,QUICKDouble* coefAngularL, int* angularL);
+                       int IJTYPE,QUICKDouble* coefAngularL, unsigned char* angularL);
 
 __device__ int lefthrr(QUICKDouble RAx, QUICKDouble RAy, QUICKDouble RAz,
                        QUICKDouble RBx, QUICKDouble RBy, QUICKDouble RBz,
                        int KLMNAx, int KLMNAy, int KLMNAz,
                        int KLMNBx, int KLMNBy, int KLMNBz,
-                       int IJTYPE,QUICKDouble* coefAngularL, int* angularL);
+                       int IJTYPE,QUICKDouble* coefAngularL, unsigned char* angularL);
 __device__ int lefthrr23(QUICKDouble RAx, QUICKDouble RAy, QUICKDouble RAz,
                         QUICKDouble RBx, QUICKDouble RBy, QUICKDouble RBz,
                         int KLMNAx, int KLMNAy, int KLMNAz,
                         int KLMNBx, int KLMNBy, int KLMNBz,
-                        int IJTYPE,QUICKDouble* coefAngularL, int* angularL);
+                        int IJTYPE,QUICKDouble* coefAngularL, unsigned char* angularL);
 
 __device__ int lefthrr_lri(QUICKDouble RAx, QUICKDouble RAy, QUICKDouble RAz,
                        QUICKDouble RBx, QUICKDouble RBy, QUICKDouble RBz,
                        int KLMNAx, int KLMNAy, int KLMNAz,
                        int KLMNBx, int KLMNBy, int KLMNBz,
-                       int IJTYPE,QUICKDouble* coefAngularL, int* angularL);
+                       int IJTYPE,QUICKDouble* coefAngularL, unsigned char* angularL);
 __device__ int lefthrr_lri23(QUICKDouble RAx, QUICKDouble RAy, QUICKDouble RAz,
                         QUICKDouble RBx, QUICKDouble RBy, QUICKDouble RBz,
                         int KLMNAx, int KLMNAy, int KLMNAz,
                         int KLMNBx, int KLMNBy, int KLMNBz,
-                        int IJTYPE,QUICKDouble* coefAngularL, int* angularL);
+                        int IJTYPE,QUICKDouble* coefAngularL, unsigned char* angularL);
 
 __device__ void sswder(QUICKDouble gridx, QUICKDouble gridy, QUICKDouble gridz, QUICKDouble Exc, QUICKDouble quadwt, QUICKULL* smemGrad, int iparent, int gid);
 __device__ QUICKDouble get_unnormalized_weight(QUICKDouble gridx, QUICKDouble gridy, QUICKDouble gridz, int iatm);
