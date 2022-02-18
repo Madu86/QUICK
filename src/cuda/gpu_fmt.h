@@ -1,5 +1,8 @@
-
+#ifdef int_sp
+__device__ __forceinline__ void FmT_sp(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
+#else
 __device__ __forceinline__ void FmT(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
+#endif
 {
 
     const QUICKDouble PIE4 = (QUICKDouble) PI/4.0 ;
