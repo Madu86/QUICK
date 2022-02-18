@@ -101,7 +101,8 @@ __global__ void getcew_quad_kernel();
 #endif
 
 // global [get2e_kernel]
-__global__ void get2e_kernel();
+__global__ void get2e_kernel_sp();
+__global__ void get2e_kernel_spd();
 __global__ void get2e_kernel_spdf();
 __global__ void get2e_kernel_spdf2();
 __global__ void get2e_kernel_spdf3();
@@ -151,7 +152,7 @@ __global__ void getAddInt_kernel(int bufferSize, ERI_entry* aoint_buffer);
 
 // kernel [iclass]
 __device__ void iclass_sp(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
-__device__ void iclass(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
+__device__ void iclass_spd(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
 __device__ void iclass_spdf(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
 __device__ void iclass_spdf2(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
 __device__ void iclass_spdf3(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
@@ -163,7 +164,8 @@ __device__ void iclass_spdf8(int I, int J, int K, int L, unsigned int II, unsign
 __device__ void iclass_spdf9(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
 __device__ void iclass_spdf10(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
 
-__device__ void iclass_oshell(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
+__device__ void iclass__oshell_sp(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_spd(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
 __device__ void iclass_oshell_spdf(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
 __device__ void iclass_oshell_spdf2(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);
 __device__ void iclass_oshell_spdf3(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, QUICKDouble* YVerticalTemp, QUICKDouble* store);

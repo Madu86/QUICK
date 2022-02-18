@@ -83,9 +83,12 @@ To understand the following comments better, please refer to Figure 2(b) and 2(d
 
  */
 #ifdef OSHELL
-#ifdef int_spd
+#ifdef int_sp
 __global__ void
-__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel()
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_sp()
+#elif defined int_spd
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_spd()
 #elif defined int_spdf
 __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_spdf()
@@ -123,7 +126,7 @@ __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_sp()
 #elif defined int_spd
 __global__ void
-__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel()
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spd()
 #elif defined int_spdf
 __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf()
@@ -439,12 +442,12 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #ifdef OSHELL
 #ifdef int_sp
                 if(iii < 2 && jjj <2 && kkk < 2 && lll < 2){
-                    iclass_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                    iclass_oshell_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
                 }
 
 #elif defined int_spd
                 if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
-                    iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
+                    iclass_oshell_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
                 }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
@@ -513,7 +516,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 
 #elif defined int_spd
                 if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
-                    iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
+                    iclass_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
                 }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
@@ -594,8 +597,10 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
  performance algrithem for electron intergral evaluation. See description below for details
  */
 #ifdef OSHELL
-#ifdef int_spd
-__device__ __forceinline__ void iclass_oshell
+#ifdef int_sp
+__device__ __forceinline__ void iclass_oshell_sp
+#elif defined int_spd
+__device__ __forceinline__ void iclass_oshell_spd
 #elif defined int_spdf
 __device__ __forceinline__ void iclass_oshell_spdf
 #elif defined int_spdf2
@@ -622,7 +627,7 @@ __device__ __forceinline__ void iclass_oshell_spdf10
 #ifdef int_sp
 __device__ __forceinline__ void iclass_sp
 #elif defined int_spd
-__device__ __forceinline__ void iclass
+__device__ __forceinline__ void iclass_spd
 #elif defined int_spdf
 __device__ __forceinline__ void iclass_spdf
 #elif defined int_spdf2

@@ -33,7 +33,23 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #include "gpu_get2e_subs_hrr.h"
 #include "int.h"
 
+#define int_sp
+#undef int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
+#include "gpu_eri_assembler_sp.h"
+#include "gpu_get2e_subs.h"
 
+
+#undef int_sp
 #define int_spd
 #undef int_spdf
 #undef int_spdf2
@@ -45,7 +61,7 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf8
 #undef int_spdf9
 #undef int_spdf10
-#include "gpu_eri_assembler.h"
+#include "gpu_eri_assembler_spd.h"
 #include "gpu_get2e_subs.h"
 #include "gpu_get2e_subs_grad.h"
 
@@ -251,7 +267,9 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 
 //Include the kernels for open shell eri calculations
 #define OSHELL
-#define int_spd
+
+#define int_sp
+#undef int_spd
 #undef int_spdf
 #undef int_spdf2
 #undef int_spdf3
@@ -263,6 +281,21 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf9
 #undef int_spdf10
 #undef new_quick_2_gpu_get2e_subs_h
+#include "gpu_eri_assembler_sp.h"
+#include "gpu_get2e_subs.h"
+
+#undef int_sp
+#define int_spd
+#undef int_spdf
+#undef int_spdf2
+#undef int_spdf3
+#undef int_spdf4
+#undef int_spdf5
+#undef int_spdf6
+#undef int_spdf7
+#undef int_spdf8
+#undef int_spdf9
+#undef int_spdf10
 #include "gpu_get2e_subs.h"
 #include "gpu_get2e_subs_grad.h"
 
@@ -506,7 +539,9 @@ void get2e(_gpu_type gpu)
     // Part spd
 //    nvtxRangePushA("SCF 2e");
 
-    QUICK_SAFE_CALL((get2e_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+    QUICK_SAFE_CALL((get2e_kernel_spd<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+
+    QUICK_SAFE_CALL((get2e_kernel_sp<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
  
 #ifdef CUDA_SPDF
     if (gpu->maxL >= 3) {
@@ -546,7 +581,9 @@ void get_oshell_eri(_gpu_type gpu)
     // Part spd
 //    nvtxRangePushA("SCF 2e");
 
-    QUICK_SAFE_CALL((get_oshell_eri_kernel<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+    QUICK_SAFE_CALL((get_oshell_eri_kernel_sp<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
+
+    QUICK_SAFE_CALL((get_oshell_eri_kernel_spd<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
 
 #ifdef CUDA_SPDF
     if (gpu->maxL >= 3) {
