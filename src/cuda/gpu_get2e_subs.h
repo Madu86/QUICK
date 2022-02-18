@@ -9,7 +9,16 @@
 
 #undef STOREDIM
 
-#ifdef int_spd
+#ifdef int_sp
+#undef VDIM3
+#undef LOCSTORE
+#undef LOCVY
+#define VDIM3 VDIM3_T
+#define STOREDIM STOREDIM_T
+#define LOCSTORE(A,i1,i2,d1,d2)  A[i1+(i2)*(d1)]
+#define LOCVY(A,i1,i2,i3,d1,d2,d3) A[i3+((i2)+(i1)*(d2))*(d3)] 
+#endif
+#elif defined int_spd
 #define STOREDIM STOREDIM_S
 #else
 #define STOREDIM STOREDIM_L
@@ -109,7 +118,10 @@ __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_spdf10()
 #endif
 #else
-#ifdef int_spd
+#ifdef int_sp
+__global__ void
+__launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_sp()
+#elif defined int_spd
 __global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel()
 #elif defined int_spdf
@@ -152,7 +164,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
     // sqrQshell= Qshell x Qshell; where Qshell is the number of sorted shells (see gpu_upload_basis_ in gpu.cu)
     // for details on sorting. 
  
-#ifdef int_spd
+#if defined int_spd || defined int_sp
 /*
  Here we walk through full cutoff matrix.
 
@@ -249,7 +261,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 
     for (QUICKULL i = offside; i < jshell * jshell2; i+= totalThreads) {
         
-#ifdef int_spd
+#if defined int_sp || defined int_spd
        /* 
         QUICKULL a, b;
         
@@ -425,14 +437,19 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                 
       
 #ifdef OSHELL
-#ifdef int_spd
-                    iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
+#ifdef int_sp
+                if(iii < 2 && jjj <2 && kkk < 2 && lll < 2){
+                    iclass_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+                }
 
+#elif defined int_spd
+                if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
+                    iclass_oshell(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
+                }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
                     iclass_oshell_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
                 }
-
 
 #elif defined int_spdf2
                 if ( (iii + jjj) > 4 && (iii + jjj) <= 6 ) {
@@ -489,9 +506,15 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                 }
 #endif
 #else          
-#ifdef int_spd
+#ifdef int_sp
+		if(iii < 2 && jjj <2 && kkk < 2 && lll < 2){
+                    iclass_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
+		}
+
+#elif defined int_spd
+                if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
                     iclass(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
-                
+                }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
                     iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
@@ -595,7 +618,10 @@ __device__ __forceinline__ void iclass_oshell_spdf9
 __device__ __forceinline__ void iclass_oshell_spdf10
 #endif
 #else
-#ifdef int_spd
+
+#ifdef int_sp
+__device__ __forceinline__ void iclass_sp
+#elif defined int_spd
 __device__ __forceinline__ void iclass
 #elif defined int_spdf
 __device__ __forceinline__ void iclass_spdf
@@ -619,8 +645,13 @@ __device__ __forceinline__ void iclass_spdf9
 __device__ __forceinline__ void iclass_spdf10
 #endif
 #endif
+
+#if defined int_sp
+                                      (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax)
+#else
                                       (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, \
                                       QUICKDouble* YVerticalTemp, QUICKDouble* store)
+#endif
 {
     
     /*
@@ -663,13 +694,24 @@ __device__ __forceinline__ void iclass_spdf10
      
      See M.Head-Gordon and J.A.Pople, Jchem.Phys., 89, No.9 (1988) for VRR algrithem details.
      */
-    //QUICKDouble store[STOREDIM*STOREDIM];
-    
+#ifdef int_sp
+    QUICKDouble store[STOREDIM*STOREDIM];   
+#endif
     /*
      Initial the neccessary element for
      */
     
-#ifdef int_spd
+#if defined int_sp 
+
+    for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
+        for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
+            if ( i <= STOREDIM && j <= STOREDIM) {
+                LOCSTORE(store, j-1, i-1, STOREDIM, STOREDIM) = 0;
+            }
+        }
+    }
+
+#elif defined int_spd
     for (int i = Sumindex[K+1]+1; i<= Sumindex[K+L+2]; i++) {
         for (int j = Sumindex[I+1]+1; j<= Sumindex[I+J+2]; j++) {
             if ( i <= STOREDIM && j <= STOREDIM) {
@@ -856,19 +898,32 @@ __device__ __forceinline__ void iclass_spdf10
                 QUICKDouble Qz = LOC2(devSim.weightedCenterZ, kk_start+KKK, ll_start+LLL, devSim.prim_total, devSim.prim_total);
                 
                 //QUICKDouble T = AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz));
-                
                 //QUICKDouble YVerticalTemp[VDIM1*VDIM2*VDIM3];
+                
+#ifdef int_sp
+                QUICKDouble YVerticalTemp[VDIM1*VDIM2*VDIM3];
+
+		FmT_sp(I+J+K+L, AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz)), YVerticalTemp);
+#else                
                 FmT(I+J+K+L, AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz)), YVerticalTemp);
+#endif
+
                 for (int i = 0; i<=I+J+K+L; i++) {
                     VY(0, 0, i) = VY(0, 0, i) * X2;
                 }
-#ifdef int_spd
+#ifdef int_sp
                 /*vertical(I, J, K, L, YVerticalTemp, store, \
                          Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                          Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
                          0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD);*/
 
-		ERint_vertical(I, J, K, L, II, JJ, KK, LL, \
+		ERint_vertical_sp(I, J, K, L, II, JJ, KK, LL, \
+                         Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
+                         Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
+                         0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD, store, YVerticalTemp);
+#elif defined int_spd
+
+                ERint_vertical_spd(I, J, K, L, II, JJ, KK, LL, \
                          Px - RAx, Py - RAy, Pz - RAz, (Px*AB+Qx*CD)*ABCD - Px, (Py*AB+Qy*CD)*ABCD - Py, (Pz*AB+Qz*CD)*ABCD - Pz, \
                          Qx - RCx, Qy - RCy, Qz - RCz, (Px*AB+Qx*CD)*ABCD - Qx, (Py*AB+Qy*CD)*ABCD - Qy, (Pz*AB+Qz*CD)*ABCD - Qz, \
                          0.5 * ABCD, 0.5 / AB, 0.5 / CD, AB * ABCD, CD * ABCD, store, YVerticalTemp);
@@ -995,7 +1050,9 @@ __device__ __forceinline__ void iclass_spdf10
                         ((JJJ == LLL) && (III  < JJJ)) ||
                         ((III == KKK) && (III  < JJJ)  && (JJJ < LLL))) {
                         
-#ifdef int_spd
+#ifdef int_sp
+                        QUICKDouble Y = (QUICKDouble) hrrwhole_sp
+#elif defined int_spd
                         QUICKDouble Y = (QUICKDouble) hrrwhole
 #elif defined int_spdf1
                         QUICKDouble Y = (QUICKDouble) hrrwhole2_1
@@ -1027,7 +1084,7 @@ __device__ __forceinline__ void iclass_spdf10
                                                                III, JJJ, KKK, LLL, IJKLTYPE, store, \
                                                                RAx, RAy, RAz, RBx, RBy, RBz, \
                                                                RCx, RCy, RCz, RDx, RDy, RDz);
-#ifdef int_spd
+#if defined int_sp || defined int_spd
                         if (abs(Y) > 0.0e0)
 #else
                         if (abs(Y) > devSim.integralCutoff)
@@ -1050,7 +1107,7 @@ __device__ __forceinline__ void iclass_spdf10
 
 
 
-#ifndef OSHELL
+#if !(defined OSHELL) && !(defined int_sp)
 #ifdef int_spd
 __global__ void 
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) getAOInt_kernel(QUICKULL intStart, QUICKULL intEnd, ERI_entry* aoint_buffer, int streamID)
@@ -1739,9 +1796,7 @@ __device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, i
 #endif
 }
 
-#ifndef OSHELL
-#include "gpu_fmt.h"
-
+#ifndef OSHELL  
 /*
  sqr for double precision. there no internal function to do that in fast-math-lib of CUDA
  */
@@ -1754,4 +1809,23 @@ __device__ __forceinline__ QUICKDouble quick_dsqr(QUICKDouble a)
 #endif
 #endif
 
+#if !(defined OSHELL) && (defined int_sp)
+#include "gpu_fmt.h"
+#else 
+#ifndef old_fmt
+#define old_fmt
+#include "gpu_fmt.h"
+#endif
+#endif
+
 #undef STOREDIM
+
+#if !(defined OSHELL) && (defined int_sp)
+#undef VDIM3
+#define VDIM3 16
+#undef LOCSTORE
+#undef LOCVY
+#define LOCSTORE(A,i1,i2,d1,d2) A[(i1+(i2)*(d1))*gridDim.x*blockDim.x]
+#define LOCVY(A,i1,i2,i3,d1,d2,d3) A[(i3+((i2)+(i1)*(d2))*(d3))*gridDim.x*blockDim.x]
+#endif
+
