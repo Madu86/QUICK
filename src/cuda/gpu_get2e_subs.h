@@ -12,14 +12,19 @@
 #ifdef int_sp
 #undef VDIM3
 #undef LOCSTORE
-#undef LOCVY
+#undef VY
 #define VDIM3 VDIM3_T
 #define STOREDIM STOREDIM_T
 #define LOCSTORE(A,i1,i2,d1,d2)  A[i1+(i2)*(d1)]
-#define LOCVY(A,i1,i2,i3,d1,d2,d3) A[i3+((i2)+(i1)*(d2))*(d3)] 
-#endif
+#define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
 #elif defined int_spd
+#undef VDIM3
+#undef VY
+#undef LOCSTORE
 #define STOREDIM STOREDIM_S
+#define VDIM3 VDIM3_S
+#define VY(a,b,c) LOCVY(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
+#define LOCSTORE(A,i1,i2,d1,d2)  A[(i1+(i2)*(d1))*gridDim.x*blockDim.x]
 #else
 #define STOREDIM STOREDIM_L
 #endif
@@ -447,7 +452,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 
 #elif defined int_spd
                 if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
-                    iclass_oshell_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
+                    iclass_oshell_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
                 }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
@@ -1821,16 +1826,5 @@ __device__ __forceinline__ QUICKDouble quick_dsqr(QUICKDouble a)
 #define old_fmt
 #include "gpu_fmt.h"
 #endif
-#endif
-
-#undef STOREDIM
-
-#if !(defined OSHELL) && (defined int_sp)
-#undef VDIM3
-#define VDIM3 16
-#undef LOCSTORE
-#undef LOCVY
-#define LOCSTORE(A,i1,i2,d1,d2) A[(i1+(i2)*(d1))*gridDim.x*blockDim.x]
-#define LOCVY(A,i1,i2,i3,d1,d2,d3) A[(i3+((i2)+(i1)*(d2))*(d3))*gridDim.x*blockDim.x]
 #endif
 

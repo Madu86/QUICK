@@ -13,13 +13,13 @@
 
 #undef STOREDIM
 #undef VDIM3
-#undef LOCVY
+#undef VY
 #undef LOCSTORE
 
 #define STOREDIM STOREDIM_T
 #define VDIM3 VDIM3_T
 #define LOCSTORE(A,i1,i2,d1,d2)  A[i1+(i2)*(d1)]
-#define LOCVY(A,i1,i2,i3,d1,d2,d3) A[i3+((i2)+(i1)*(d2))*(d3)] 
+#define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3) 
 
 __device__ __inline__ void ERint_vertical_sp(int I, int J, int K, int L, int II, int JJ, int KK, int LL, 
         QUICKDouble Ptempx, QUICKDouble Ptempy, QUICKDouble Ptempz, QUICKDouble WPtempx,QUICKDouble WPtempy,QUICKDouble WPtempz, 

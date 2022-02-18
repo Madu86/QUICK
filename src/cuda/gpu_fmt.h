@@ -1,6 +1,13 @@
+
 #ifdef int_sp
+#undef VDIM3
+#undef VY
+#define VDIM3 VDIM3_T
+#define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3) 
+
 __device__ __forceinline__ void FmT_sp(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
 #else
+
 __device__ __forceinline__ void FmT(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
 #endif
 {
@@ -62,14 +69,15 @@ __device__ __forceinline__ void FmT(int MaxM, QUICKDouble X, QUICKDouble* YVerti
 
 
     if (X > 1.0E-1 || (X> 1.0E-4 && MaxM < 4)) {
-        LOCVY(YVerticalTemp, 0, 0, 0, VDIM1, VDIM2, VDIM3) = WW1;
+        VY(0, 0, 0) = WW1;
         for (int m = 1; m<= MaxM; m++) {
-            LOCVY(YVerticalTemp, 0, 0, m, VDIM1, VDIM2, VDIM3) = (((2*m-1)*LOCVY(YVerticalTemp, 0, 0, m-1, VDIM1, VDIM2, VDIM3))- E)*0.5*XINV;
+	    VY(0, 0, m) = (((2*m-1)*VY( 0, 0, m-1))- E)*0.5*XINV;
         }
     }else {
-        LOCVY(YVerticalTemp, 0, 0, MaxM, VDIM1, VDIM2, VDIM3) = WW1;
+        VY(0, 0, MaxM) = WW1;
         for (int m = MaxM-1; m >=0; m--) {
-            LOCVY(YVerticalTemp, 0, 0, m, VDIM1, VDIM2, VDIM3) = (2.0 * X * LOCVY(YVerticalTemp, 0, 0, m+1, VDIM1, VDIM2, VDIM3) + E) / (QUICKDouble)(m*2+1);
+	    VY(0, 0, m) = (2.0 * X * VY(0, 0, m+1) + E) / (QUICKDouble)(m*2+1);
+
         }
     }
     return;
