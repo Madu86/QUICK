@@ -31,9 +31,11 @@ fflush(stdout);\
 
 #define VDIM1 1
 #define VDIM2 1
-//#define VDIM3 10
+#define VDIM3_SP 4
 #define VDIM3 16
 
+
+#define STOREDIM_T 10
 #define STOREDIM_S 35
 
 #ifdef CUDA_SPDF
