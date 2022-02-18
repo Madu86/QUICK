@@ -17,7 +17,7 @@
 #undef LOCSTORE
 
 #define STOREDIM STOREDIM_T
-#define VDIM3 VDIM3_SP
+#define VDIM3 VDIM3_T
 #define LOCSTORE(A,i1,i2,d1,d2)  A[i1+(i2)*(d1)]
 #define LOCVY(A,i1,i2,i3,d1,d2,d3) A[i3+((i2)+(i1)*(d2))*(d3)] 
 
