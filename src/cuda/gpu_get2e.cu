@@ -281,7 +281,6 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf9
 #undef int_spdf10
 #undef new_quick_2_gpu_get2e_subs_h
-#include "gpu_eri_assembler_sp.h"
 #include "gpu_get2e_subs.h"
 
 #undef int_sp

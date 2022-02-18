@@ -28,9 +28,9 @@ __device__ __inline__ void ERint_vertical_spd(int I, int J, int K, int L, int II
         QUICKDouble* store, QUICKDouble* YVerticalTemp){ 
 
     // [SS|SS] integral - Start
-/*    QUICKDouble VY_0 = VY(0, 0, 0);
+    QUICKDouble VY_0 = VY(0, 0, 0);
     LOCSTORE(store, 0, 0, STOREDIM, STOREDIM) += VY_0;
-*/    // [SS|SS] integral - End 
+    // [SS|SS] integral - End 
 
     if ((I + J) >= 0 && (K + L) >= 1)
     {

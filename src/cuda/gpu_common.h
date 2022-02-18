@@ -32,7 +32,7 @@ fflush(stdout);\
 #define VDIM1 1
 #define VDIM2 1
 #define VDIM3_T 4
-#define VDIM3_S 8
+#define VDIM3_S 9
 #define VDIM3_L 16
 #define VDIM3 16
 
