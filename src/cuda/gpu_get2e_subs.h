@@ -23,7 +23,7 @@
 #undef LOCSTORE
 #define STOREDIM STOREDIM_S
 #define VDIM3 VDIM3_S
-#define VY(a,b,c) LOCVY(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
+#define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
 #define LOCSTORE(A,i1,i2,d1,d2)  A[(i1+(i2)*(d1))*gridDim.x*blockDim.x]
 #else
 #define STOREDIM STOREDIM_L
@@ -452,7 +452,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 
 #elif defined int_spd
                 if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
-                    iclass_oshell_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
+                    iclass_oshell_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.store+offside);
                 }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
@@ -521,7 +521,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 
 #elif defined int_spd
                 if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
-                    iclass_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
+                    iclass_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.store+offside);
                 }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
@@ -658,6 +658,9 @@ __device__ __forceinline__ void iclass_spdf10
 
 #if defined int_sp
                                       (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax)
+#elif defined int_spd
+                                      (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, \
+                                      QUICKDouble* store)
 #else
                                       (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, \
                                       QUICKDouble* YVerticalTemp, QUICKDouble* store)
@@ -704,7 +707,7 @@ __device__ __forceinline__ void iclass_spdf10
      
      See M.Head-Gordon and J.A.Pople, Jchem.Phys., 89, No.9 (1988) for VRR algrithem details.
      */
-#ifdef int_sp
+#if defined int_sp
     QUICKDouble store[STOREDIM*STOREDIM];   
 #endif
     /*
@@ -910,10 +913,14 @@ __device__ __forceinline__ void iclass_spdf10
                 //QUICKDouble T = AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz));
                 //QUICKDouble YVerticalTemp[VDIM1*VDIM2*VDIM3];
                 
-#ifdef int_sp
+#if defined int_sp || defined int_spd
                 QUICKDouble YVerticalTemp[VDIM1*VDIM2*VDIM3];
+#endif
 
+#ifdef int_sp
 		FmT_sp(I+J+K+L, AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz)), YVerticalTemp);
+#elif defined int_spd
+                FmT_spd(I+J+K+L, AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz)), YVerticalTemp);
 #else                
                 FmT(I+J+K+L, AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz)), YVerticalTemp);
 #endif
@@ -1819,12 +1826,36 @@ __device__ __forceinline__ QUICKDouble quick_dsqr(QUICKDouble a)
 #endif
 #endif
 
-#if !(defined OSHELL) && (defined int_sp)
+#ifdef int_sp
+#ifndef sp_fmt
+#define sp_fmt
+#undef FMT_NAME
+#define FMT_NAME FmT_sp
 #include "gpu_fmt.h"
-#else 
+#endif
+#elif defined int_spd
+
+#ifndef spd_fmt
+#define spd_fmt
+#undef FMT_NAME
+#define FMT_NAME FmT_spd
+#include "gpu_fmt.h"
+#endif
+
 #ifndef old_fmt
 #define old_fmt
+
+#undef VDIM3
+#undef VY
+#define VDIM3 VDIM3_L
+#define VY(a,b,c) LOCVY(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
+
+#undef FMT_NAME
+#define FMT_NAME FmT
 #include "gpu_fmt.h"
 #endif
-#endif
+
+#endif 
+
+
 
