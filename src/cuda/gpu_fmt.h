@@ -1,15 +1,7 @@
 
-#ifdef int_sp
-#undef VDIM3
-#undef VY
-#define VDIM3 VDIM3_T
-#define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3) 
+// FMT_NAME should be FmT/FmT_sp/FmT_spd and defined somewhere
 
-__device__ __forceinline__ void FmT_sp(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
-#else
-
-__device__ __forceinline__ void FmT(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
-#endif
+__device__ __forceinline__ void FMT_NAME(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
 {
 
     const QUICKDouble PIE4 = (QUICKDouble) PI/4.0 ;
@@ -82,4 +74,3 @@ __device__ __forceinline__ void FmT(int MaxM, QUICKDouble X, QUICKDouble* YVerti
     }
     return;
 }
-
