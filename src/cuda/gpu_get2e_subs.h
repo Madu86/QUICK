@@ -657,12 +657,12 @@ __device__ __forceinline__ void iclass_spdf10
 #endif
 
 #if defined int_sp
-                                      (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax)
+                                      (const int I, const int J, const int K, const int L, const unsigned int II, const unsigned int JJ, const unsigned int KK, const unsigned int LL, const QUICKDouble DNMax)
 #elif defined int_spd
-                                      (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, \
+                                      (const int I, const int J, const int K, const int L, const unsigned int II, const unsigned int JJ, const unsigned int KK, const unsigned int LL, const QUICKDouble DNMax, \
                                       QUICKDouble* store)
 #else
-                                      (int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax, \
+                                      (const int I, const int J, const int K, const int L, const unsigned int II, const unsigned int JJ, const unsigned int KK, const unsigned int LL, const QUICKDouble DNMax, \
                                       QUICKDouble* YVerticalTemp, QUICKDouble* store)
 #endif
 {
@@ -1578,9 +1578,9 @@ QUICKDouble* YVerticalTemp, QUICKDouble* store)
 
 
 #ifdef OSHELL
-__device__ __forceinline__ void addint_oshell(QUICKULL* oULL, QUICKULL* obULL,QUICKDouble Y, int III, int JJJ, int KKK, int LLL,QUICKDouble hybrid_coeff,  QUICKDouble* dense, QUICKDouble* denseb,int nbasis)
+__device__ __forceinline__ void addint_oshell(QUICKULL* oULL, QUICKULL* obULL, const QUICKDouble Y, const int III, const int JJJ, const int KKK, const int LLL, const QUICKDouble hybrid_coeff,  QUICKDouble* dense, QUICKDouble* denseb, const int nbasis)
 #else
-__device__ __forceinline__ void addint(QUICKULL* oULL, QUICKDouble Y, int III, int JJJ, int KKK, int LLL,QUICKDouble hybrid_coeff,  QUICKDouble* dense, int nbasis)
+__device__ __forceinline__ void addint(QUICKULL* oULL, const QUICKDouble Y, const int III, const int JJJ, const int KKK, const int LLL, const QUICKDouble hybrid_coeff,  QUICKDouble* dense, const int nbasis)
 #endif
 {
     

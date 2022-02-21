@@ -21,15 +21,14 @@
 #define LOCSTORE(A,i1,i2,d1,d2)  A[(i1+(i2)*(d1))*gridDim.x*blockDim.x]
 #define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3) 
 
-__device__ __inline__ void ERint_vertical_spd(int I, int J, int K, int L, int II, int JJ, int KK, int LL, 
-        QUICKDouble Ptempx, QUICKDouble Ptempy, QUICKDouble Ptempz, QUICKDouble WPtempx,QUICKDouble WPtempy,QUICKDouble WPtempz, 
-        QUICKDouble Qtempx, QUICKDouble Qtempy, QUICKDouble Qtempz, QUICKDouble WQtempx,QUICKDouble WQtempy,QUICKDouble WQtempz, 
-        QUICKDouble ABCDtemp,QUICKDouble ABtemp, QUICKDouble CDtemp, QUICKDouble ABcom, QUICKDouble CDcom, 
+__device__ __inline__ void ERint_vertical_spd(const int I, const int J, const int K, const int L, const int II, const int JJ, const int KK, const int LL, 
+        const QUICKDouble Ptempx, const QUICKDouble Ptempy, const QUICKDouble Ptempz, const QUICKDouble WPtempx, const QUICKDouble WPtempy, const QUICKDouble WPtempz, 
+        const QUICKDouble Qtempx, const QUICKDouble Qtempy, const QUICKDouble Qtempz, const QUICKDouble WQtempx, const QUICKDouble WQtempy, const QUICKDouble WQtempz, 
+        const QUICKDouble ABCDtemp, const QUICKDouble ABtemp, const QUICKDouble CDtemp, const QUICKDouble ABcom, const QUICKDouble CDcom, 
         QUICKDouble* store, QUICKDouble* YVerticalTemp){ 
 
     // [SS|SS] integral - Start
-    QUICKDouble VY_0 = VY(0, 0, 0);
-    LOCSTORE(store, 0, 0, STOREDIM, STOREDIM) += VY_0;
+    LOCSTORE(store, 0, 0, STOREDIM, STOREDIM) += VY(0, 0, 0);
     // [SS|SS] integral - End 
 
     if ((I + J) >= 0 && (K + L) >= 1)
@@ -211,7 +210,6 @@ __device__ __inline__ void ERint_vertical_spd(int I, int J, int K, int L, int II
         {
 
             // [PS|SS] integral - Start
-
             QUICKDouble VY_0 = VY(0, 0, 0);
             QUICKDouble VY_1 = VY(0, 0, 1);
             LOCSTORE(store, 1, 0, STOREDIM, STOREDIM) += Ptempx * VY_0 + WPtempx * VY_1;

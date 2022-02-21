@@ -1,7 +1,7 @@
 
 // FMT_NAME should be FmT/FmT_sp/FmT_spd and defined somewhere
 
-__device__ __forceinline__ void FMT_NAME(int MaxM, QUICKDouble X, QUICKDouble* YVerticalTemp)
+__device__ __forceinline__ void FMT_NAME(const int MaxM, const QUICKDouble X, QUICKDouble* YVerticalTemp)
 {
 
     const QUICKDouble PIE4 = (QUICKDouble) PI/4.0 ;

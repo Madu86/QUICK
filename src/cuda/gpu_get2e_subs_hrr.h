@@ -14,12 +14,12 @@
 #undef LOCSTORE
 #define LOCSTORE(A,i1,i2,d1,d2)  A[i1+(i2)*(d1)]
 
-__device__ __forceinline__ QUICKDouble hrrwhole_sp(int I, int J, int K, int L, \
-                                                int III, int JJJ, int KKK, int LLL, int IJKLTYPE, QUICKDouble* store, \
-                                                QUICKDouble RAx,QUICKDouble RAy,QUICKDouble RAz, \
-                                                QUICKDouble RBx,QUICKDouble RBy,QUICKDouble RBz, \
-                                                QUICKDouble RCx,QUICKDouble RCy,QUICKDouble RCz, \
-                                                QUICKDouble RDx,QUICKDouble RDy,QUICKDouble RDz)
+__device__ __forceinline__ QUICKDouble hrrwhole_sp( const int I, const int J, const int K, const int L, \
+                                                const int III, const int JJJ, const int KKK, const int LLL, const int IJKLTYPE, QUICKDouble* store, \
+                                                const QUICKDouble RAx, const QUICKDouble RAy, const QUICKDouble RAz, \
+                                                const QUICKDouble RBx, const QUICKDouble RBy, const QUICKDouble RBz, \
+                                                const QUICKDouble RCx, const QUICKDouble RCy, const QUICKDouble RCz, \
+                                                const QUICKDouble RDx, const QUICKDouble RDy, const QUICKDouble RDz)
 {   
     QUICKDouble Y;
     
@@ -52,12 +52,12 @@ __device__ __forceinline__ QUICKDouble hrrwhole_sp(int I, int J, int K, int L, \
 #undef LOCSTORE
 #define LOCSTORE(A,i1,i2,d1,d2) A[(i1+(i2)*(d1))*gridDim.x*blockDim.x]
 
-__device__ __forceinline__ QUICKDouble hrrwhole(int I, int J, int K, int L, \
-                                                int III, int JJJ, int KKK, int LLL, int IJKLTYPE, QUICKDouble* store, \
-                                                QUICKDouble RAx,QUICKDouble RAy,QUICKDouble RAz, \
-                                                QUICKDouble RBx,QUICKDouble RBy,QUICKDouble RBz, \
-                                                QUICKDouble RCx,QUICKDouble RCy,QUICKDouble RCz, \
-                                                QUICKDouble RDx,QUICKDouble RDy,QUICKDouble RDz)
+__device__ __forceinline__ QUICKDouble hrrwhole(const int I, const int J, const int K, const int L, \
+                                                const int III, const int JJJ, const int KKK, const int LLL, const int IJKLTYPE, QUICKDouble* store, \
+                                                const QUICKDouble RAx, const QUICKDouble RAy, const QUICKDouble RAz, \
+                                                const QUICKDouble RBx, const QUICKDouble RBy, const QUICKDouble RBz, \
+                                                const QUICKDouble RCx, const QUICKDouble RCy, const QUICKDouble RCz, \
+                                                const QUICKDouble RDx, const QUICKDouble RDy, const QUICKDouble RDz)
 {
     QUICKDouble Y;
     
