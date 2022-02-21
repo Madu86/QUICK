@@ -29,6 +29,23 @@ static __constant__ gpu_simulation_type devSim;
 static __constant__ unsigned char devTrans[TRANSDIM*TRANSDIM*TRANSDIM];
 static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 
+#define USE_TEXTURE
+
+#ifdef USE_TEXTURE
+#define USE_TEXTURE_CUTMATRIX
+#define USE_TEXTURE_YCUTOFF
+#define USE_TEXTURE_XCOEFF
+#endif
+
+#ifdef USE_TEXTURE_CUTMATRIX
+texture <int2, cudaTextureType1D, cudaReadModeElementType> tex_cutMatrix;
+#endif
+#ifdef USE_TEXTURE_YCUTOFF
+texture <int2, cudaTextureType1D, cudaReadModeElementType> tex_YCutoff;
+#endif
+#ifdef USE_TEXTURE_XCOEFF
+texture <int2, cudaTextureType1D, cudaReadModeElementType> tex_Xcoeff;
+#endif
 
 #include "gpu_get2e_subs_hrr.h"
 #include "int.h"
@@ -538,6 +555,10 @@ void get2e(_gpu_type gpu)
     // Part spd
 //    nvtxRangePushA("SCF 2e");
 
+#ifdef USE_TEXTURE
+    bind_eri_texture(gpu);
+#endif
+
     QUICK_SAFE_CALL((get2e_kernel_sp<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
 
     QUICK_SAFE_CALL((get2e_kernel_spd<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
@@ -572,6 +593,10 @@ void get2e(_gpu_type gpu)
     cudaDeviceSynchronize();
 //    nvtxRangePop();
 
+#ifdef USE_TEXTURE
+    unbind_eri_texture();
+#endif
+
 }
 
 // interface to call Kernel subroutine for uscf
@@ -579,6 +604,10 @@ void get_oshell_eri(_gpu_type gpu)
 {
     // Part spd
 //    nvtxRangePushA("SCF 2e");
+
+#ifdef USE_TEXTURE
+    bind_eri_texture(gpu);
+#endif
 
     QUICK_SAFE_CALL((get_oshell_eri_kernel_sp<<<gpu->blocks, gpu->twoEThreadsPerBlock>>>()));
 
@@ -611,6 +640,10 @@ void get_oshell_eri(_gpu_type gpu)
 
 //    cudaDeviceSynchronize();
 //    nvtxRangePop();
+
+#ifdef USE_TEXTURE
+    unbind_eri_texture();
+#endif
 
 }
 
@@ -863,3 +896,34 @@ void upload_para_to_const(){
 
 }
 
+void bind_eri_texture(_gpu_type gpu){
+
+#ifdef USE_TEXTURE_CUTMATRIX
+    cudaBindTexture(NULL, tex_cutMatrix, gpu->gpu_sim.cutMatrix, gpu->nshell*gpu->nshell*sizeof(QUICKDouble));
+#endif
+
+#ifdef USE_TEXTURE_YCUTOFF
+    cudaBindTexture(NULL, tex_YCutoff, gpu->gpu_sim.YCutoff, gpu->nshell*gpu->nshell*sizeof(QUICKDouble));
+#endif
+
+#ifdef USE_TEXTURE_XCOEFF
+    cudaBindTexture(NULL, tex_Xcoeff, gpu->gpu_sim.Xcoeff, gpu->jbasis*gpu->jbasis*2*2*sizeof(QUICKDouble));
+#endif
+
+}
+
+void unbind_eri_texture(){
+
+#ifdef USE_TEXTURE_CUTMATRIX
+    cudaUnbindTexture(tex_cutMatrix);
+#endif
+
+#ifdef USE_TEXTURE_YCUTOFF
+    cudaUnbindTexture(tex_YCutoff);
+#endif
+
+#ifdef USE_TEXTURE_XCOEFF
+    cudaUnbindTexture(tex_Xcoeff);    
+#endif
+
+}

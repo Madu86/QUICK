@@ -89,7 +89,7 @@ To understand the following comments better, please refer to Figure 2(b) and 2(d
  */
 #ifdef OSHELL
 #ifdef int_sp
-__global__ void
+__global__ void 
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_sp()
 #elif defined int_spd
 __global__ void
@@ -127,7 +127,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_spdf10()
 #endif
 #else
 #ifdef int_sp
-__global__ void
+__global__ void 
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_sp()
 #elif defined int_spd
 __global__ void
@@ -430,13 +430,60 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
             
             
             int nshell = devSim.nshell;
+
+#ifdef USE_TEXTURE
+            int2 tmpInt2Val;
+
+            QUICKDouble val_ii_jj;
+            QUICKDouble val_kk_ll;
+#endif
+
+#if defined USE_TEXTURE && defined USE_TEXTURE_CUTMATRIX
+            tmpInt2Val = tex1Dfetch(tex_cutMatrix, ii + jj*nshell);
+            val_ii_jj = __hiloint2double(tmpInt2Val.y, tmpInt2Val.x);
+
+            tmpInt2Val = tex1Dfetch(tex_cutMatrix, kk + ll*nshell);
+            val_kk_ll = __hiloint2double(tmpInt2Val.y, tmpInt2Val.x);
+
+            tmpInt2Val = tex1Dfetch(tex_cutMatrix, ii + ll*nshell);
+            QUICKDouble val_ii_ll = __hiloint2double(tmpInt2Val.y, tmpInt2Val.x);
+
+            tmpInt2Val = tex1Dfetch(tex_cutMatrix, ii + kk*nshell);
+            QUICKDouble val_ii_kk = __hiloint2double(tmpInt2Val.y, tmpInt2Val.x);
+
+            tmpInt2Val = tex1Dfetch(tex_cutMatrix, jj + kk*nshell);
+            QUICKDouble val_jj_kk = __hiloint2double(tmpInt2Val.y, tmpInt2Val.x);
+
+            tmpInt2Val = tex1Dfetch(tex_cutMatrix, jj + ll*nshell);
+            QUICKDouble val_jj_ll = __hiloint2double(tmpInt2Val.y, tmpInt2Val.x);
+
+            QUICKDouble DNMax = MAX(MAX(4.0*val_ii_jj, 4.0*val_kk_ll),
+                                    MAX(MAX(val_ii_ll,     val_ii_kk),
+                                        MAX(val_jj_kk,     val_jj_ll)));
+#else
+
             QUICKDouble DNMax = MAX(MAX(4.0*LOC2(devSim.cutMatrix, ii, jj, nshell, nshell), 4.0*LOC2(devSim.cutMatrix, kk, ll, nshell, nshell)),
                                     MAX(MAX(LOC2(devSim.cutMatrix, ii, ll, nshell, nshell),     LOC2(devSim.cutMatrix, ii, kk, nshell, nshell)),
                                         MAX(LOC2(devSim.cutMatrix, jj, kk, nshell, nshell),     LOC2(devSim.cutMatrix, jj, ll, nshell, nshell))));
+
+#endif
+
+#if defined USE_TEXTURE && defined USE_TEXTURE_YCUTOFF
+            tmpInt2Val = tex1Dfetch(tex_YCutoff, kk + ll*nshell);
+            val_kk_ll = __hiloint2double(tmpInt2Val.y, tmpInt2Val.x);
+
+            tmpInt2Val = tex1Dfetch(tex_YCutoff, ii + jj*nshell);
+            val_ii_jj = __hiloint2double(tmpInt2Val.y, tmpInt2Val.x);
+
+            if ((val_kk_ll * val_ii_jj)> devSim.integralCutoff && \
+                (val_kk_ll * val_ii_jj * DNMax) > devSim.integralCutoff) {
+
+#else
             
             if ((LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell))> devSim.integralCutoff && \
                 (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) > devSim.integralCutoff) {
-                
+
+#endif                
                 int iii = devSim.sorted_Qnumber[II];
                 int jjj = devSim.sorted_Qnumber[JJ];
                 int kkk = devSim.sorted_Qnumber[KK];
@@ -884,8 +931,14 @@ __device__ __forceinline__ void iclass_spdf10
                 /*
                  X2 is the multiplication of four indices normalized coeffecient
                  */
+
+#if defined USE_TEXTURE && defined USE_TEXTURE_XCOEFF
+                int2 XcoeffInt2 = tex1Dfetch(tex_Xcoeff, L - devSim.Qstart[LL]+(K - devSim.Qstart[KK]+((kStartL+LLL)+(kStartK+KKK)*(devSim.jbasis))*(2))*(2));
+                QUICKDouble X2 = sqrt(ABCD) * X1 * __hiloint2double(XcoeffInt2.y, XcoeffInt2.x);
+#else
                 QUICKDouble X2 = sqrt(ABCD) * X1 * LOC4(devSim.Xcoeff, kStartK+KKK, kStartL+LLL, K - devSim.Qstart[KK], L - devSim.Qstart[LL], devSim.jbasis, devSim.jbasis, 2, 2);
-                
+#endif                
+
                 /*
                  Q' is the weighting center of K and L
                  --->           --->

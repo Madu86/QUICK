@@ -281,6 +281,8 @@ void upload_sim_to_constant_lri(_gpu_type gpu);
 void upload_para_to_const();
 char *trim(char *s);
 
+void bind_eri_texture(_gpu_type gpu);
+void unbind_eri_texture();
 
 //__device__ void gpu_shell(unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL);
 __device__ void addint(QUICKULL* oULL, const QUICKDouble Y, const int III, const int JJJ, const int KKK, const int LLL, const QUICKDouble hybrid_coeff,  QUICKDouble* dense, const int nbasis);
