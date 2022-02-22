@@ -420,28 +420,13 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
         int II = devSim.sorted_YCutoffIJ[a].x;
         int KK = devSim.sorted_YCutoffIJ[b].x;        
 
-#ifdef int_spd
-
-        int JJ = devSim.sorted_YCutoffIJ[a].y;
-        int LL = devSim.sorted_YCutoffIJ[b].y;
-
-        int iii = devSim.sorted_Qnumber[II];
-        int jjj = devSim.sorted_Qnumber[JJ];
-        int kkk = devSim.sorted_Qnumber[KK];
-        int lll = devSim.sorted_Qnumber[LL];
-
-        if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
-#endif
-
         int ii = devSim.sorted_Q[II];
         int kk = devSim.sorted_Q[KK];
         
         if (ii<=kk){
 
-#ifndef int_spd
             int JJ = devSim.sorted_YCutoffIJ[a].y;            
             int LL = devSim.sorted_YCutoffIJ[b].y;
-
 
             int iii = devSim.sorted_Qnumber[II];
             int jjj = devSim.sorted_Qnumber[JJ];
@@ -451,6 +436,9 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #ifdef int_sp
             if(iii < 2 && jjj <2 && kkk < 2 && lll < 2){
 #endif
+
+#ifdef int_spd
+            if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
 #endif
             
             int jj = devSim.sorted_Q[JJ];
@@ -651,15 +639,11 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
             }
 
         
-#ifdef int_sp
+#if defined int_sp || defined int_spd
         }
 #endif
 
         }
-
-#ifdef int_spd
-        }
-#endif
 
 #ifdef CUDA_MPIV
         }      
