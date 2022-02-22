@@ -127,7 +127,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get_oshell_eri_kernel_spdf10()
 #endif
 #else
 #ifdef int_sp
-__global__ void 
+__global__ void
 __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_sp()
 #elif defined int_spd
 __global__ void
@@ -172,7 +172,12 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
     // sqrQshell= Qshell x Qshell; where Qshell is the number of sorted shells (see gpu_upload_basis_ in gpu.cu)
     // for details on sorting. 
  
-#if defined int_spd || defined int_sp
+#ifdef int_sp
+
+    QUICKULL jshell = (QUICKULL) devSim.sqrQshell;
+    QUICKULL jshell2 = (QUICKULL) devSim.sqrQshell;
+
+#elif defined int_spd
 /*
  Here we walk through full cutoff matrix.
 
@@ -415,21 +420,44 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
         int II = devSim.sorted_YCutoffIJ[a].x;
         int KK = devSim.sorted_YCutoffIJ[b].x;        
 
+#ifdef int_spd
+
+        int JJ = devSim.sorted_YCutoffIJ[a].y;
+        int LL = devSim.sorted_YCutoffIJ[b].y;
+
+        int iii = devSim.sorted_Qnumber[II];
+        int jjj = devSim.sorted_Qnumber[JJ];
+        int kkk = devSim.sorted_Qnumber[KK];
+        int lll = devSim.sorted_Qnumber[LL];
+
+        if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
+#endif
+
         int ii = devSim.sorted_Q[II];
         int kk = devSim.sorted_Q[KK];
         
         if (ii<=kk){
-            
-            
-            int JJ = devSim.sorted_YCutoffIJ[a].y;
+
+#ifndef int_spd
+            int JJ = devSim.sorted_YCutoffIJ[a].y;            
             int LL = devSim.sorted_YCutoffIJ[b].y;
+
+
+            int iii = devSim.sorted_Qnumber[II];
+            int jjj = devSim.sorted_Qnumber[JJ];
+            int kkk = devSim.sorted_Qnumber[KK];
+            int lll = devSim.sorted_Qnumber[LL];
+
+#ifdef int_sp
+            if(iii < 2 && jjj <2 && kkk < 2 && lll < 2){
+#endif
+#endif
             
             int jj = devSim.sorted_Q[JJ];
             int ll = devSim.sorted_Q[LL];
             
-            
-            
             int nshell = devSim.nshell;
+
 
 #ifdef USE_TEXTURE
             int2 tmpInt2Val;
@@ -484,23 +512,13 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
                 (LOC2(devSim.YCutoff, kk, ll, nshell, nshell) * LOC2(devSim.YCutoff, ii, jj, nshell, nshell) * DNMax) > devSim.integralCutoff) {
 
 #endif                
-                int iii = devSim.sorted_Qnumber[II];
-                int jjj = devSim.sorted_Qnumber[JJ];
-                int kkk = devSim.sorted_Qnumber[KK];
-                int lll = devSim.sorted_Qnumber[LL];
 
-                
       
 #ifdef OSHELL
 #ifdef int_sp
-                if(iii < 2 && jjj <2 && kkk < 2 && lll < 2){
                     iclass_oshell_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-                }
-
 #elif defined int_spd
-                if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
                     iclass_oshell_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.store+offside);
-                }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
                     iclass_oshell_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
@@ -562,14 +580,9 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #endif
 #else          
 #ifdef int_sp
-		if(iii < 2 && jjj <2 && kkk < 2 && lll < 2){
                     iclass_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
-		}
-
 #elif defined int_spd
-                if(!(iii < 2 && jjj <2 && kkk < 2 && lll < 2)){
                     iclass_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.store+offside);
-                }
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
                     iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
@@ -636,7 +649,17 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #endif
                 
             }
+
+        
+#ifdef int_sp
         }
+#endif
+
+        }
+
+#ifdef int_spd
+        }
+#endif
 
 #ifdef CUDA_MPIV
         }      
