@@ -4,8 +4,6 @@
 __device__ __forceinline__ void FMT_NAME(const int MaxM, const QUICKDouble X, QUICKDouble* YVerticalTemp)
 {
 
-    const QUICKDouble PIE4 = (QUICKDouble) PI/4.0 ;
-
     const QUICKDouble XINV = (QUICKDouble) 1.0 /X;
     const QUICKDouble E = (QUICKDouble) exp(-X);
     QUICKDouble WW1, F1;
