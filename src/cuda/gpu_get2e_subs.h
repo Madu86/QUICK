@@ -23,7 +23,7 @@
 #undef LOCSTORE
 #define STOREDIM STOREDIM_S
 #define VDIM3 VDIM3_S
-#define VY(a,b,c) LOC3(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
+#define VY(a,b,c) LOCVY(YVerticalTemp, a, b, c, VDIM1, VDIM2, VDIM3)
 #define LOCSTORE(A,i1,i2,d1,d2)  A[(i1+(i2)*(d1))*gridDim.x*blockDim.x]
 #else
 #define STOREDIM STOREDIM_L
@@ -506,7 +506,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #ifdef int_sp
                     iclass_oshell_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
 #elif defined int_spd
-                    iclass_oshell_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.store+offside);
+                    iclass_oshell_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
                     iclass_oshell_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
@@ -570,7 +570,7 @@ __launch_bounds__(SM_2X_2E_THREADS_PER_BLOCK, 1) get2e_kernel_spdf10()
 #ifdef int_sp
                     iclass_sp(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax);
 #elif defined int_spd
-                    iclass_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.store+offside);
+                    iclass_spd(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
 #elif defined int_spdf
                 if ( (kkk + lll) <= 6 && (kkk + lll) > 4) {
                     iclass_spdf(iii, jjj, kkk, lll, ii, jj, kk, ll, DNMax, devSim.YVerticalTemp+offside, devSim.store+offside);
@@ -714,7 +714,7 @@ __device__ __forceinline__ void iclass_spdf10
                                       (const int I, const int J, const int K, const int L, const unsigned int II, const unsigned int JJ, const unsigned int KK, const unsigned int LL, const QUICKDouble DNMax)
 #elif defined int_spd
                                       (const int I, const int J, const int K, const int L, const unsigned int II, const unsigned int JJ, const unsigned int KK, const unsigned int LL, const QUICKDouble DNMax, \
-                                      QUICKDouble* store)
+                                      QUICKDouble* YVerticalTemp, QUICKDouble* store)
 #else
                                       (const int I, const int J, const int K, const int L, const unsigned int II, const unsigned int JJ, const unsigned int KK, const unsigned int LL, const QUICKDouble DNMax, \
                                       QUICKDouble* YVerticalTemp, QUICKDouble* store)
@@ -973,7 +973,7 @@ __device__ __forceinline__ void iclass_spdf10
                 //QUICKDouble T = AB * CD * ABCD * ( quick_dsqr(Px-Qx) + quick_dsqr(Py-Qy) + quick_dsqr(Pz-Qz));
                 //QUICKDouble YVerticalTemp[VDIM1*VDIM2*VDIM3];
                 
-#if defined int_sp || defined int_spd
+#if defined int_sp
                 QUICKDouble YVerticalTemp[VDIM1*VDIM2*VDIM3];
 #endif
 
