@@ -360,3 +360,65 @@
   end subroutine getsswnumder
 
 
+
+  subroutine anal_sswder(gridx,gridy,gridz,exc,quadwt,iparent)
+
+    use quick_molspec_module
+
+    implicit none
+
+    double precision, intent(in) :: gridx,gridy,gridz,exc,quadwt
+    integer, intent(in) :: iparent
+    double precision :: mu_ki, mu_ki3, r_kxg, r_kyg, r_kzg, r_kg,&
+                        r_ixg, r_iyg, r_izg, r_ig, &
+                        zof_mu_ki, gof_mu_ki, sof_mu_ki, wkof_rg
+
+    integer :: iatom
+
+    ! compute w_k(r_g)
+    
+    r_kxg = gridx - xyz(1,iparent) 
+    r_kyg = gridy - xyz(2,iparent)
+    r_kzg = gridz - xyz(3,iparent)
+    r_kg = sqrt(r_kxg*r_kxg + r_kyg*r_kyg + r_kzg*r_kzg)
+
+    wkof_rg = 1.0d0
+    do iatom=1, natom
+      if(iatom == iparent) cycle
+
+      r_ixg = gridx - xyz(1,iatom)
+      r_iyg = gridy - xyz(2,iatom)
+      r_izg = gridz - xyz(3,iatom)
+      r_ig = sqrt(r_ixg*r_ixg + r_iyg*r_iyg + r_izg*r_izg)
+
+      mu_ki = (r_kg-r_ig)*(1/quick_molspec%atomdistance(iparent,iatom))
+
+      if (mu_ki =< -0.64d0) then
+        gof_mu_ki = -1.0d0
+      else if(mu_ki => 0.64d0) then
+        gof_mu_ki = 1.0d0
+      else
+        mu_ki3 = mu_ki * mu_ki * mu_ki
+        zof_mu_ki = SSW_POLYFAC1 * mu_ki - SSW_POLYFAC2 * mu_ki3 +&
+                    SSW_POLYFAC3 * mu_ki * mu_ki * mu_ki3 - &
+                    SSW_POLYFAC4 * mu_ki * mu_ki3 * mu_ki3
+        gof_mu_ki = zof_mu_ki
+      endif
+
+      ! compute cell function value
+      sof_mu_ki = 0.5d0 * (1.0d0 - gof_mu_ki)
+
+      ! unnormalized weight
+      wkof_rg = wkof_rg*sof_mu_ki
+    enddo
+        
+    ! compute  \sum_{j}w_j(r_g)
+    do iatom=1, natom
+      do jatom=1, natom
+        if(iatom == jatom) cycle        
+
+      enddo
+    enddo
+
+  end subroutine anal_sswder
+
