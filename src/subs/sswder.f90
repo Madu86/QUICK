@@ -359,7 +359,10 @@
     
   end subroutine getsswnumder
 
-
+#define SSWDER_POLYFAC1 (3.4179687500)
+#define SSWDER_POLYFAC2 (25.03395080566406)
+#define SSWDER_POLYFAC3 (61.11804395914077)
+#define SSWDER_POLYFAC4 (49.737991503207006)
 
   subroutine anal_sswder(gridx,gridy,gridz,exc,quadwt,iparent)
 
@@ -371,9 +374,20 @@
     integer, intent(in) :: iparent
     double precision :: mu_ki, mu_ki3, r_kxg, r_kyg, r_kzg, r_kg,&
                         r_ixg, r_iyg, r_izg, r_ig, &
-                        zof_mu_ki, gof_mu_ki, sof_mu_ki, wkof_rg
+                        zof_mu_ki, gof_mu_ki, sof_mu_ki, wkof_rg,&
+                        r_jxg, r_jyg, r_jzg, r_jg, mu_ji, mu_ji3,&
+                        zof_mu_ji, gof_mu_ji, sof_mu_ji, wjof_rg,&
+                        sum_wjof_rg, r_ki_recip, r_ki_recip2, d_wkof_rg_tmp
+    double precision :: store_sof_mu_ji(natom,natom),d_mu_ki(3),d_zof_mu_ki(3),&
+                        d_sof_mu_ki(3),gridl(3),d_wkof_rg(3)
 
-    integer :: iatom
+    integer :: iatom, jatom, l
+
+    gridl(1)=gridx
+    gridl(2)=gridy
+    gridl(3)=gridz
+
+    d_wkof_rg=0.0d0
 
     ! compute w_k(r_g)
     
@@ -393,9 +407,9 @@
 
       mu_ki = (r_kg-r_ig)*(1/quick_molspec%atomdistance(iparent,iatom))
 
-      if (mu_ki =< -0.64d0) then
+      if (mu_ki <= -0.64d0) then
         gof_mu_ki = -1.0d0
-      else if(mu_ki => 0.64d0) then
+      else if(mu_ki >= 0.64d0) then
         gof_mu_ki = 1.0d0
       else
         mu_ki3 = mu_ki * mu_ki * mu_ki
@@ -412,12 +426,76 @@
       wkof_rg = wkof_rg*sof_mu_ki
     enddo
         
-    ! compute  \sum_{j}w_j(r_g)
-    do iatom=1, natom
-      do jatom=1, natom
+    ! compute  \sum_{j}w_j(r_g).
+    ! Computing w_k(r_g) can be done inside following nested loop 
+    ! and above code block should be eliminated. 
+    sum_wjof_rg = 0.0d0
+    do jatom=1, natom
+      r_jxg = gridx - xyz(1,jatom)
+      r_jyg = gridy - xyz(2,jatom)
+      r_jzg = gridz - xyz(3,jatom)
+      r_jg = sqrt(r_jxg*r_jxg + r_jyg*r_jyg + r_jzg*r_jzg)
+
+      wjof_rg = 1.0d0
+      do iatom=1, natom
         if(iatom == jatom) cycle        
 
+        r_ixg = gridx - xyz(1,iatom)
+        r_iyg = gridy - xyz(2,iatom)
+        r_izg = gridz - xyz(3,iatom)
+        r_ig = sqrt(r_ixg*r_ixg + r_iyg*r_iyg + r_izg*r_izg)
+
+        mu_ji = (r_jg-r_ig)*(1/quick_molspec%atomdistance(iatom,jatom))
+
+        if (mu_ji <= -0.64d0) then
+          gof_mu_ji = -1.0d0
+        else if(mu_ji >= 0.64d0) then
+          gof_mu_ji = 1.0d0
+        else
+          mu_ji3 = mu_ji * mu_ji * mu_ji
+          zof_mu_ji = SSW_POLYFAC1 * mu_ji - SSW_POLYFAC2 * mu_ji3 +&
+                      SSW_POLYFAC3 * mu_ji * mu_ji * mu_ji3 - &
+                      SSW_POLYFAC4 * mu_ji * mu_ji3 * mu_ji3
+          gof_mu_ji = zof_mu_ji
+        endif
+        
+        ! compute cell function value
+        sof_mu_ji = 0.5d0 * (1.0d0 - gof_mu_ji)
+
+        wjof_rg = wjof_rg*sof_mu_ji
+
+        ! store values for later use
+        store_sof_mu_ji(iatom, jatom) = sof_mu_ji
       enddo
+
+      sum_wjof_rg = sum_wjof_rg + wjof_rg
+    enddo
+
+    ! compute \frac{\mathrm{d(\mu _{ki})} }{\mathrm{d} l} where l=x,y,z 
+    do iatom=1, natom
+      if(iatom == iparent) cycle
+
+      r_ki_recip = 1/quick_molspec%atomdistance(iatom,iparent)
+      r_ki_recip2 = r_ki_recip*r_ki_recip
+      mu_ki = (r_kg-r_ig)*(1/quick_molspec%atomdistance(iparent,iatom))
+      mu_ki3 = mu_ki*mu_ki*mu_ki
+
+      do l=1,3
+        d_mu_ki(l)=(((xyz(l,iparent)-gridl(l))*(1/r_kg))-((r_kg-xyz(l,iatom))*(xyz(l,iparent)-xyz(l,iatom))*r_ki_recip2))*r_ki_recip
+
+        d_zof_mu_ki(l)=SSWDER_POLYFAC1*d_mu_ki(l)-SSWDER_POLYFAC2*mu_ki*mu_ki*d_mu_ki(l)+SSWDER_POLYFAC3*mu_ki*mu_ki3*d_mu_ki(l)-&
+                       SSWDER_POLYFAC4*mu_ki3*mu_ki3*d_mu_ki(l)
+        d_sof_mu_ki(l)= -0.5d0*d_zof_mu_ki(l)
+
+        ! compute \frac{\mathrm{d{w_k(r_g))}} }{\mathrm{d} l}
+        d_wkof_rg_tmp = d_sof_mu_ki(l)
+        do jatom=1,natom
+          if(iatom == jatom) cycle
+          d_wkof_rg_tmp=d_wkof_rg_tmp*store_sof_mu_ji(jatom)
+        enddo
+        d_wkof_rg(l)=d_wkof_rg(l)+d_wkof_rg_tmp
+      enddo
+
     enddo
 
   end subroutine anal_sswder
