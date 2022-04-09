@@ -481,9 +481,11 @@
       mu_ki3 = mu_ki*mu_ki*mu_ki
 
       do l=1,3
-        d_mu_ki(l)=(((xyz(l,iparent)-gridl(l))*(1/r_kg))-((r_kg-xyz(l,iatom))*(xyz(l,iparent)-xyz(l,iatom))*r_ki_recip2))*r_ki_recip
+        d_mu_ki(l)=(((xyz(l,iparent)-gridl(l))*(1/r_kg))-&
+                   ((r_kg-xyz(l,iatom))*(xyz(l,iparent)-xyz(l,iatom))*r_ki_recip2))*r_ki_recip
 
-        d_zof_mu_ki(l)=SSWDER_POLYFAC1*d_mu_ki(l)-SSWDER_POLYFAC2*mu_ki*mu_ki*d_mu_ki(l)+SSWDER_POLYFAC3*mu_ki*mu_ki3*d_mu_ki(l)-&
+        d_zof_mu_ki(l)=SSWDER_POLYFAC1*d_mu_ki(l)-SSWDER_POLYFAC2*mu_ki*mu_ki*d_mu_ki(l)+&
+                       SSWDER_POLYFAC3*mu_ki*mu_ki3*d_mu_ki(l)-&
                        SSWDER_POLYFAC4*mu_ki3*mu_ki3*d_mu_ki(l)
         d_sof_mu_ki(l)= -0.5d0*d_zof_mu_ki(l)
 
@@ -491,7 +493,7 @@
         d_wkof_rg_tmp = d_sof_mu_ki(l)
         do jatom=1,natom
           if(iatom == jatom) cycle
-          d_wkof_rg_tmp=d_wkof_rg_tmp*store_sof_mu_ji(jatom)
+          d_wkof_rg_tmp=d_wkof_rg_tmp*store_sof_mu_ji(jatom, iatom)
         enddo
         d_wkof_rg(l)=d_wkof_rg(l)+d_wkof_rg_tmp
       enddo
