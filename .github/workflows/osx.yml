@@ -14,7 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install deps
-        run: sudo apt-get -y install gcc gfortran cmake
+        run: brew install gcc@10
+        run: brew install cmake
       - name: Configure serial
         run: |
              mkdir build
