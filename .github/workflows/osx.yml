@@ -21,7 +21,7 @@ jobs:
         run: |
              mkdir build
              cd build
-             CC=gcc-13 CXX=g++-13 FC=gfortran-13 cmake .. -DCOMPILER=AUTO -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
+             FC=gfortran-13 cmake .. -DCOMPILER=AUTO -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
       - name: Build serial
         run: |
              cd build
