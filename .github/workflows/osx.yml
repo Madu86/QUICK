@@ -1,0 +1,39 @@
+name: Serial Build
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  cmake-build:
+    runs-on: macos-latest 
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install deps
+        run: sudo apt-get -y install gcc gfortran cmake
+      - name: Configure serial
+        run: |
+             mkdir build
+             cd build
+             cmake .. -DCOMPILER=AUTO -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
+      - name: Build serial
+        run: |
+             cd build
+             make -j2 install
+      - name: Set environment variables
+        run: echo "QUICK_HOME=$PWD/install" >> $GITHUB_ENV
+      - name: Test serial
+        run: |
+             cd install
+             ./runtest --serial --full
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+            name: serial-tests
+            path: /home/runner/work/QUICK/QUICK/install/test/runs/serial
+            retention-days: 3
