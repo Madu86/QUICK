@@ -16,7 +16,7 @@ jobs:
       - name: Install deps
         run: |
              brew install gcc@13
-             sudo ln -s /usr/local/bin/gfortran /usr/local/bin/gfortran-13
+             sudo ln -s /usr/local/bin/gfortran-13 /usr/local/bin/gfortran
              brew install open-mpi
       - name: Configure OSX MPI
         run: |
