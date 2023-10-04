@@ -22,7 +22,7 @@ jobs:
         run: |
              mkdir build
              cd build
-             cmake .. -DMPI=TRUE -DCOMPILER=AUTO -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
+             FC=mpif90 cmake .. -DMPI=TRUE -DCOMPILER=AUTO -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
       - name: Build serial
         run: |
              cd build
