@@ -16,7 +16,7 @@ jobs:
       - name: Install deps
         run: |
              brew install gcc@13
-             echo "OMPI_MPIF90=gfortran-13" >> $GITHUB_ENV
+             sudo ln -s /usr/local/bin/gfortran /usr/local/bin/gfortran-13
              brew install open-mpi
       - name: Configure OSX MPI
         run: |
