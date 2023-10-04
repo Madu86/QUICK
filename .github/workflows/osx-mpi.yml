@@ -16,13 +16,13 @@ jobs:
       - name: Install deps
         run: |
              brew install gcc@13
+             echo "OMPI_MPIF90=gfortran-13" >> $GITHUB_ENV
              brew install open-mpi
       - name: Configure OSX MPI
         run: |
              mkdir build
              cd build
-             echo "OMPI_MPIF90=gfortran-13" >> $GITHUB_ENV
-             FC=mpifort cmake .. -DMPI=TRUE -DCOMPILER=AUTO -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
+             cmake .. -DMPI=TRUE -DCOMPILER=AUTO -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
       - name: Build serial
         run: |
              cd build
