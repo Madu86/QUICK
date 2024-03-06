@@ -1,0 +1,44 @@
+name: Intel Serial Build
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  cmake-build:
+    runs-on: ubuntu-latest 
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install deps
+        run: |
+             sudo apt-get update
+             sudo apt-get -y install cmake
+             sudo apt-get -y install intel-basekit intel-hpckit
+             echo "source /opt/intel/oneapi/setvars.sh" >> $GITHUB_ENV
+             sudo apt-get -y install openmpi-bin openmpi-common libopenmpi-dev
+      - name: Configure serial
+        run: |
+             mkdir build
+             cd build
+             cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
+      - name: Build serial
+        run: |
+             cd build
+             make -j2 install
+      - name: Set environment variables
+        run: echo "QUICK_HOME=$PWD/install" >> $GITHUB_ENV
+      - name: Test serial
+        run: |
+             cd install
+             ./runtest --serial --full
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+            name: serial-tests
+            path: /home/runner/work/QUICK/QUICK/install/test/runs/serial
+            retention-days: 3
