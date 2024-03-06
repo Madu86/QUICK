@@ -1,9 +1,9 @@
 name: Serial Build
 
 on:
-  push:
-    paths-ignore:
-      - '**.md'
+  #push:
+  #  paths-ignore:
+  #   - '**.md'
   pull_request:
     paths-ignore:
       - '**.md'
