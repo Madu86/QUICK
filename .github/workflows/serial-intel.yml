@@ -20,10 +20,9 @@ jobs:
              wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/67c08c98-f311-4068-8b85-15d79c4f277a/l_HPCKit_p_2024.0.1.38_offline.sh
              sudo sh ./l_HPCKit_p_2024.0.1.38_offline.sh -s -a -s --eula accept --install-dir /opt/intel/oneapi
              sudo apt-get -y install cmake
-             echo "source /opt/intel/oneapi/setvars.sh" >> $GITHUB_ENV
+             . /opt/intel/oneapi/setvars.sh
+             rm -f ./l_HPCKit_p_2024.0.1.38_offline.sh
              sudo apt-get -y install openmpi-bin openmpi-common libopenmpi-dev
-      - name: Configure serial
-        run: |
              mkdir build
              cd build
              cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
