@@ -1,9 +1,9 @@
 name: Intel Serial Build
 
 on:
-  push:
-    paths-ignore:
-      - '**.md'
+  #push:
+  #  paths-ignore:
+  #    - '**.md'
   pull_request:
     paths-ignore:
       - '**.md'
@@ -17,9 +17,8 @@ jobs:
         run: |
              sudo apt-get update
              sudo apt-get install -y wget build-essential software-properties-common lsb-release
-             curl -fsSL https://registrationcenter-download.intel.com/akdlm/irc_nas/18209/l_HPCKit_p_2022.1.0.223_offline.sh -o l_HPCKit_p_2022.1.0.223_offline.sh
-             chmod +x l_HPCKit_p_2022.1.0.223_offline.sh
-             sudo ./l_HPCKit_p_2022.1.0.223_offline.sh -s -a -s --eula accept --install-dir /opt/intel/oneapi
+             wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/163da6e4-56eb-4948-aba3-debcec61c064/l_BaseKit_p_2024.0.1.46_offline.sh
+             sudo sh ./l_BaseKit_p_2024.0.1.46_offline.sh -s -a -s --eula accept --install-dir /opt/intel/oneapi
              sudo apt-get -y install cmake
              echo "source /opt/intel/oneapi/setvars.sh" >> $GITHUB_ENV
              sudo apt-get -y install openmpi-bin openmpi-common libopenmpi-dev
