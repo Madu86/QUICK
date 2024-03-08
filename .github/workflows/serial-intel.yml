@@ -11,24 +11,17 @@ on:
 jobs:
   cmake-build:
     runs-on: ubuntu-latest 
+    container:
+      image: intel/oneapi-hpckit:latest # Use the latest Intel HPC Toolkit image
+
     steps:
       - uses: actions/checkout@v2
       - name: Install deps
         run: |
-             wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-             sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-             rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-             sudo echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-             sudo apt-get update
-             sudo apt-get install -y intel-oneapi-common-vars
-             sudo apt-get install -y intel-oneapi-compiler-fortran
-             sudo apt-get install -y intel-oneapi-mkl
-             sudo apt-get install -y intel-oneapi-mpi
-             sudo apt-get install -y intel-oneapi-mpi-devel
              . /opt/intel/oneapi/setvars.sh
              mkdir build
              cd build
-             CXX=dpcpp CC=icx FC=ifx cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
+             CXX=icpx CC=icx FC=ifort cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
       - name: Build serial
         run: |
              cd build
