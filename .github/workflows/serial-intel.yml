@@ -20,7 +20,9 @@ jobs:
         run: |
              mkdir build
              cd build
-             CXX=icpx CC=icx FC=ifort cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
+             ln -s $(which icx) ~/bin/icc
+             ln -s $(which icpx) ~/bin/icpc
+             cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
       - name: Build serial
         run: |
              cd build
