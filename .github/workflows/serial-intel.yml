@@ -25,9 +25,10 @@ jobs:
              sudo apt-get install -y intel-oneapi-mkl
              sudo apt-get install -y intel-oneapi-mpi
              sudo apt-get install -y intel-oneapi-mpi-devel
+             . /opt/intel/oneapi/setvars.sh
              mkdir build
              cd build
-             cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
+             CXX=dpcpp CC=icx FC=ifx cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
       - name: Build serial
         run: |
              cd build
