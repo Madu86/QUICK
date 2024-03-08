@@ -15,14 +15,16 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install deps
         run: |
+             wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+             sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+             rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+             sudo echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
              sudo apt-get update
-             sudo apt-get -y install cmake
-             git clone https://github.com/spack/spack.git ~/spack
-             . ~/spack/share/spack/setup-env.sh
-             spack install intel-oneapi-compilers intel-oneapi-mkl intel-oneapi-mpi
-             spack load intel-oneapi-compilers intel-oneapi-mkl intel-oneapi-mpi
-             spack compiler find
-             spack compilers
+             sudo apt-get install -y intel-oneapi-common-vars
+             sudo apt-get install -y intel-oneapi-compiler-fortran
+             sudo apt-get install -y intel-oneapi-mkl
+             sudo apt-get install -y intel-oneapi-mpi
+             sudo apt-get install -y intel-oneapi-mpi-devel
              mkdir build
              cd build
              cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
