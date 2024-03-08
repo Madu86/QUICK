@@ -16,12 +16,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Create bin directory
+        run: mkdir -p /github/home/bin
+  
+      - name: Create symbolic links for Intel oneAPI compilers
+        run: |
+          ln -s $(which icx) /github/home/bin/icc
+          ln -s $(which icpx) /github/home/bin/icpc
+          ln -s $(which ifort) /github/home/bin/ifort
+  
+      - name: Add bin directory to PATH
+        run: echo "/github/home/bin" >> $GITHUB_PATH
       - name: Install deps
         run: |
              mkdir build
              cd build
-             ln -s $(which icx) ~/bin/icc
-             ln -s $(which icpx) ~/bin/icpc
              cmake .. -DCOMPILER=INTEL -DENABLEF=TRUE -DCMAKE_INSTALL_PREFIX=$(pwd)/../install
       - name: Build serial
         run: |
